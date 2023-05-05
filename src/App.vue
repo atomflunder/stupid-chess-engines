@@ -6,7 +6,7 @@ import type { BoardConfig } from 'vue3-chessboard';
 
 import 'vue3-chessboard/style.css';
 
-import { Chess } from 'chess.js';
+import { Chess, type Move } from 'chess.js';
 import { calculateElo } from './helpers/elo';
 import { allAlgorithms } from './helpers/algorithms';
 import { Outcome } from './helpers/outcomes';
@@ -24,8 +24,8 @@ let outcomes = ref([0, 0, 0]);
 let stopBackground = ref(true);
 let stopForeground = ref(true);
 
-let whiteAlgorithm = ref(allAlgorithms.random);
-let blackAlgorithm = ref(allAlgorithms.random);
+let whiteAlgorithm = ref(allAlgorithms.none);
+let blackAlgorithm = ref(allAlgorithms.none);
 
 function createBoard(api: BoardApi) {
     boardAPI.value = api;
@@ -59,8 +59,21 @@ function simulate() {
     turn();
 }
 
+function parseMove(move: Move) {
+    if (move.color === 'w' && whiteAlgorithm.value.name === allAlgorithms.none.name) {
+        chess.value.move(move.san);
+    } else if (move.color === 'b' && blackAlgorithm.value.name === allAlgorithms.none.name) {
+        chess.value.move(move.san);
+    }
+}
+
 function simulateMore() {
-    if (stopBackground.value || outcomes.value[0] + outcomes.value[1] + outcomes.value[2] >= 100) {
+    if (
+        stopBackground.value ||
+        outcomes.value[0] + outcomes.value[1] + outcomes.value[2] >= 100 ||
+        whiteAlgorithm.value.name === allAlgorithms.none.name ||
+        blackAlgorithm.value.name === allAlgorithms.none.name
+    ) {
         return;
     }
 
@@ -140,7 +153,11 @@ onBeforeMount(() => {
         <p style="white-space: pre-line">{{ history }}</p>
     </div>
 
-    <TheChessboard :board-config="boardConfig" @board-created="createBoard"></TheChessboard>
+    <TheChessboard
+        :board-config="boardConfig"
+        @board-created="createBoard"
+        @move="(move) => parseMove(move)"
+    ></TheChessboard>
 </template>
 
 <style scoped>

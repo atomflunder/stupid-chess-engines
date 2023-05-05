@@ -1,3 +1,4 @@
+import type { Chess } from 'chess.js';
 import { blackMove } from './algorithms/black';
 import { firstMove } from './algorithms/first';
 import { kingMove } from './algorithms/king';
@@ -7,8 +8,15 @@ import { pawnMove } from './algorithms/pawn';
 import { randomMove } from './algorithms/random';
 import { warMove } from './algorithms/war';
 import { whiteMove } from './algorithms/white';
+import type { BoardApi } from 'vue3-chessboard';
 
 export const allAlgorithms = {
+    none: {
+        name: 'None',
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        algorithm: (_chess: Chess, _boardAPI: BoardApi | null = null): void => {}
+    },
+
     random: {
         name: 'Random',
         algorithm: randomMove
