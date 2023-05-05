@@ -1,4 +1,5 @@
 import { firstMove, firstMoveHeadless } from './algorithms/first';
+import { kingMove, kingMoveHeadless } from './algorithms/king';
 import { longestMove, longestMoveHeadless } from './algorithms/longest';
 import { pacifistMove, pacifistMoveHeadless } from './algorithms/pacifist';
 import { pawnMove, pawnMoveHeadless } from './algorithms/pawn';
@@ -40,5 +41,11 @@ export const allAlgorithms = {
         name: 'Longest',
         algorithm: longestMove,
         algorithmHeadless: longestMoveHeadless
+    },
+
+    king: {
+        name: 'King',
+        algorithm: kingMove,
+        algorithmHeadless: kingMoveHeadless
     }
 };
