@@ -7,44 +7,42 @@ import type { BoardApi } from 'vue3-chessboard';
  * and if that is impossible it will try to take an enemy piece.
  * If that is also not possible we just make a random move.
  */
-function getMove(chess: Chess): string {
+export function warMove(chess: Chess, boardAPI: BoardApi | null = null) {
     const moves = chess.moves();
 
     const checkmateMoves = moves.filter((s) => s.indexOf('#') !== -1);
 
     if (checkmateMoves.length > 0) {
-        const randMove = checkmateMoves[Math.floor(Math.random() * checkmateMoves.length)];
+        const move = checkmateMoves[Math.floor(Math.random() * checkmateMoves.length)];
 
-        return randMove;
+        if (boardAPI) {
+            boardAPI.move(move);
+        }
+        chess.move(move);
+        return;
     }
 
     const checkMoves = moves.filter((s) => s.indexOf('+') !== -1);
 
     if (checkMoves.length > 0) {
-        const randMove = checkMoves[Math.floor(Math.random() * checkmateMoves.length)];
+        const move = checkMoves[Math.floor(Math.random() * checkmateMoves.length)];
 
-        return randMove;
+        if (boardAPI) {
+            boardAPI.move(move);
+        }
+        chess.move(move);
+        return;
     }
 
     const takeMoves = moves.filter((s) => s.indexOf('x') !== -1);
 
-    const randMove =
+    const move =
         takeMoves.length > 0
             ? takeMoves[Math.floor(Math.random() * takeMoves.length)]
             : moves[Math.floor(Math.random() * moves.length)];
 
-    return randMove;
-}
-
-export function warMove(boardAPI: BoardApi, chess: Chess) {
-    const move = getMove(chess);
-
-    boardAPI.move(move);
-    chess.move(move);
-}
-
-export function warMoveHeadless(chess: Chess) {
-    const move = getMove(chess);
-
+    if (boardAPI) {
+        boardAPI.move(move);
+    }
     chess.move(move);
 }

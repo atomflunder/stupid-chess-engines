@@ -1,51 +1,44 @@
-import { firstMove, firstMoveHeadless } from './algorithms/first';
-import { kingMove, kingMoveHeadless } from './algorithms/king';
-import { longestMove, longestMoveHeadless } from './algorithms/longest';
-import { pacifistMove, pacifistMoveHeadless } from './algorithms/pacifist';
-import { pawnMove, pawnMoveHeadless } from './algorithms/pawn';
-import { randomMove, randomMoveHeadless } from './algorithms/random';
-import { warMove, warMoveHeadless } from './algorithms/war';
+import { firstMove } from './algorithms/first';
+import { kingMove } from './algorithms/king';
+import { longestMove } from './algorithms/longest';
+import { pacifistMove } from './algorithms/pacifist';
+import { pawnMove } from './algorithms/pawn';
+import { randomMove } from './algorithms/random';
+import { warMove } from './algorithms/war';
 
 export const allAlgorithms = {
     random: {
         name: 'Random',
-        algorithm: randomMove,
-        algorithmHeadless: randomMoveHeadless
+        algorithm: randomMove
     },
 
     first: {
         name: 'First',
-        algorithm: firstMove,
-        algorithmHeadless: firstMoveHeadless
+        algorithm: firstMove
     },
 
     pawn: {
         name: 'Pawn',
-        algorithm: pawnMove,
-        algorithmHeadless: pawnMoveHeadless
+        algorithm: pawnMove
     },
 
     war: {
         name: 'War',
-        algorithm: warMove,
-        algorithmHeadless: warMoveHeadless
+        algorithm: warMove
     },
 
     pacifist: {
         name: 'Pacifist',
-        algorithm: pacifistMove,
-        algorithmHeadless: pacifistMoveHeadless
+        algorithm: pacifistMove
     },
 
     longest: {
         name: 'Longest',
-        algorithm: longestMove,
-        algorithmHeadless: longestMoveHeadless
+        algorithm: longestMove
     },
 
     king: {
         name: 'King',
-        algorithm: kingMove,
-        algorithmHeadless: kingMoveHeadless
+        algorithm: kingMove
     }
 };

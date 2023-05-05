@@ -37,9 +37,9 @@ function simulate() {
     function turn() {
         if (!stopForeground.value) {
             if (chess.turn() === 'w') {
-                whiteAlgorithm.value.algorithm(boardAPI.value!, chess);
+                whiteAlgorithm.value.algorithm(chess, boardAPI.value!);
             } else {
-                blackAlgorithm.value.algorithm(boardAPI.value!, chess);
+                blackAlgorithm.value.algorithm(chess, boardAPI.value!);
             }
         }
 
@@ -62,9 +62,9 @@ function simulateMore() {
 
     while (!chess.isGameOver()) {
         if (chess.turn() === 'w') {
-            whiteAlgorithm.value.algorithmHeadless(chess);
+            whiteAlgorithm.value.algorithm(chess);
         } else {
-            blackAlgorithm.value.algorithmHeadless(chess);
+            blackAlgorithm.value.algorithm(chess);
         }
     }
 
