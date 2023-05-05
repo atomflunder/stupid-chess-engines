@@ -6,9 +6,9 @@ import type { BoardApi } from 'vue3-chessboard';
  * If that is not possible we just make a random move.
  */
 export function pawnMove(chess: Chess, boardAPI: BoardApi | null = null) {
-    const moves = chess.moves();
+    const moves = chess.moves({ verbose: true });
 
-    const pawnMoves = moves.filter((s) => s === s.toLowerCase());
+    const pawnMoves = moves.filter((s) => s.piece === 'p');
 
     const move =
         pawnMoves.length > 0
@@ -16,7 +16,7 @@ export function pawnMove(chess: Chess, boardAPI: BoardApi | null = null) {
             : moves[Math.floor(Math.random() * moves.length)];
 
     if (boardAPI) {
-        boardAPI.move(move);
+        boardAPI.move(move.san);
     }
-    chess.move(move);
+    chess.move(move.san);
 }

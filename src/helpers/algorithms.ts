@@ -1,3 +1,4 @@
+import { blackMove } from './algorithms/black';
 import { firstMove } from './algorithms/first';
 import { kingMove } from './algorithms/king';
 import { longestMove } from './algorithms/longest';
@@ -5,6 +6,7 @@ import { pacifistMove } from './algorithms/pacifist';
 import { pawnMove } from './algorithms/pawn';
 import { randomMove } from './algorithms/random';
 import { warMove } from './algorithms/war';
+import { whiteMove } from './algorithms/white';
 
 export const allAlgorithms = {
     random: {
@@ -40,5 +42,15 @@ export const allAlgorithms = {
     king: {
         name: 'King',
         algorithm: kingMove
+    },
+
+    black: {
+        name: 'Black',
+        algorithm: blackMove
+    },
+
+    white: {
+        name: 'White',
+        algorithm: whiteMove
     }
 };
