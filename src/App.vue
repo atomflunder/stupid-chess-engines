@@ -31,19 +31,25 @@ function createBoard(api: BoardApi) {
     boardAPI.value = api;
 }
 
-function simulate() {
-    const chess = new Chess();
+const chess = ref(new Chess());
+let history = ref('');
 
+function simulate() {
     function turn() {
         if (!stopForeground.value) {
-            if (chess.turn() === 'w') {
-                whiteAlgorithm.value.algorithm(chess, boardAPI.value!);
+            if (chess.value.turn() === 'w') {
+                whiteAlgorithm.value.algorithm(chess.value as Chess, boardAPI.value!);
             } else {
-                blackAlgorithm.value.algorithm(chess, boardAPI.value!);
+                blackAlgorithm.value.algorithm(chess.value as Chess, boardAPI.value!);
             }
+
+            history.value = chess.value.pgn({
+                maxWidth: 1,
+                newline: '\n'
+            });
         }
 
-        if (chess.isGameOver()) {
+        if (chess.value.isGameOver()) {
             return;
         } else {
             setTimeout(turn, 800);
@@ -101,35 +107,51 @@ onBeforeMount(() => {
 </script>
 
 <template>
-    <div>
-        White: {{ Math.floor(whiteElo) }}
+    <div class="sidebar">
+        <div>
+            White: {{ Math.floor(whiteElo) }}
+            <br />
+            Black: {{ Math.floor(blackElo) }}
+            <br />
+            Outcomes: W{{ outcomes[0] }} - B{{ outcomes[1] }} - D{{ outcomes[2] }}
+        </div>
+
+        <button @click="stopBackground = !stopBackground">TOGGLE BACKGROUND GAMES</button>
+        <button @click="stopForeground = !stopForeground">TOGGLE VISUALISED GAME</button>
+
         <br />
-        Black: {{ Math.floor(blackElo) }}
+
+        WHITE
+        <select name="White Algorithm" id="white" v-model="whiteAlgorithm">
+            <option v-for="(algo, i) in allAlgorithms" :key="i" :value="algo">
+                {{ algo.name }}
+            </option>
+        </select>
+
         <br />
-        Outcomes: W{{ outcomes[0] }} - B{{ outcomes[1] }} - D{{ outcomes[2] }}
+        BLACK
+        <select name="Black Algorithm" id="black" v-model="blackAlgorithm">
+            <option v-for="(algo, i) in allAlgorithms" :key="i" :value="algo">
+                {{ algo.name }}
+            </option>
+        </select>
+
+        <div>MOVES:</div>
+        <p style="white-space: pre-line">{{ history }}</p>
     </div>
-
-    <button @click="stopBackground = !stopBackground">TOGGLE BACKGROUND GAMES</button>
-    <button @click="stopForeground = !stopForeground">TOGGLE VISUALISED GAME</button>
-
-    <br />
-
-    WHITE
-    <select name="White Algorithm" id="white" v-model="whiteAlgorithm">
-        <option v-for="(algo, i) in allAlgorithms" :key="i" :value="algo">
-            {{ algo.name }}
-        </option>
-    </select>
-
-    <br />
-    BLACK
-    <select name="Black Algorithm" id="black" v-model="blackAlgorithm">
-        <option v-for="(algo, i) in allAlgorithms" :key="i" :value="algo">
-            {{ algo.name }}
-        </option>
-    </select>
 
     <TheChessboard :board-config="boardConfig" @board-created="createBoard"></TheChessboard>
 </template>
 
-<style scoped></style>
+<style scoped>
+.sidebar {
+    height: 100%;
+    width: 400px;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    overflow-x: hidden;
+    padding-top: 20px;
+}
+</style>
