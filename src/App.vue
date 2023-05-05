@@ -7,14 +7,8 @@ import type { BoardConfig } from 'vue3-chessboard';
 import 'vue3-chessboard/style.css';
 
 import { Chess } from 'chess.js';
-import { pacifistMove, pacifistMoveHeadless } from './helpers/algorithms/pacifist';
-import { warMove, warMoveHeadless } from './helpers/algorithms/war';
-import { randomMove, randomMoveHeadless } from './helpers/algorithms/random';
-import { firstMove, firstMoveHeadless } from './helpers/algorithms/first';
-import { pawnMove, pawnMoveHeadless } from './helpers/algorithms/pawn';
 import { calculateElo } from './helpers/elo';
-import { Algorithms, allAlgorithms } from './helpers/algorithms';
-import { Side } from './helpers/side';
+import { allAlgorithms } from './helpers/algorithms';
 import { Outcome } from './helpers/outcomes';
 
 const boardAPI = ref<BoardApi>();
@@ -30,62 +24,8 @@ let outcomes = ref([0, 0, 0]);
 let stopBackground = ref(true);
 let stopForeground = ref(true);
 
-let whiteAlgorithm = ref(randomMove);
-let whiteAlgorithmHeadless = ref(randomMoveHeadless);
-let whiteAlgorithmSelected = ref(Algorithms.Random);
-let blackAlgorithm = ref(randomMove);
-let blackAlgorithmHeadless = ref(randomMoveHeadless);
-let blackAlgorithmSelected = ref(Algorithms.Random);
-
-function changeAlgorithm(side: Side) {
-    if (side === Side.White) {
-        switch (whiteAlgorithmSelected.value) {
-            case Algorithms.Random:
-                whiteAlgorithm.value = randomMove;
-                whiteAlgorithmHeadless.value = randomMoveHeadless;
-                break;
-            case Algorithms.First:
-                whiteAlgorithm.value = firstMove;
-                whiteAlgorithmHeadless.value = firstMoveHeadless;
-                break;
-            case Algorithms.Pawn:
-                whiteAlgorithm.value = pawnMove;
-                whiteAlgorithmHeadless.value = pawnMoveHeadless;
-                break;
-            case Algorithms.War:
-                whiteAlgorithm.value = warMove;
-                whiteAlgorithmHeadless.value = warMoveHeadless;
-                break;
-            case Algorithms.Pacifist:
-                whiteAlgorithm.value = pacifistMove;
-                whiteAlgorithmHeadless.value = pacifistMoveHeadless;
-                break;
-        }
-    } else {
-        switch (blackAlgorithmSelected.value) {
-            case Algorithms.Random:
-                blackAlgorithm.value = randomMove;
-                blackAlgorithmHeadless.value = randomMoveHeadless;
-                break;
-            case Algorithms.First:
-                blackAlgorithm.value = firstMove;
-                blackAlgorithmHeadless.value = firstMoveHeadless;
-                break;
-            case Algorithms.Pawn:
-                blackAlgorithm.value = pawnMove;
-                blackAlgorithmHeadless.value = pawnMoveHeadless;
-                break;
-            case Algorithms.War:
-                blackAlgorithm.value = warMove;
-                blackAlgorithmHeadless.value = warMoveHeadless;
-                break;
-            case Algorithms.Pacifist:
-                blackAlgorithm.value = pacifistMove;
-                blackAlgorithmHeadless.value = pacifistMoveHeadless;
-                break;
-        }
-    }
-}
+let whiteAlgorithm = ref(allAlgorithms.random);
+let blackAlgorithm = ref(allAlgorithms.random);
 
 function createBoard(api: BoardApi) {
     boardAPI.value = api;
@@ -97,9 +37,9 @@ function simulate() {
     function turn() {
         if (!stopForeground.value) {
             if (chess.turn() === 'w') {
-                whiteAlgorithm.value(boardAPI.value!, chess);
+                whiteAlgorithm.value.algorithm(boardAPI.value!, chess);
             } else {
-                blackAlgorithm.value(boardAPI.value!, chess);
+                blackAlgorithm.value.algorithm(boardAPI.value!, chess);
             }
         }
 
@@ -122,9 +62,9 @@ function simulateMore() {
 
     while (!chess.isGameOver()) {
         if (chess.turn() === 'w') {
-            whiteAlgorithmHeadless.value(chess);
+            whiteAlgorithm.value.algorithmHeadless(chess);
         } else {
-            blackAlgorithmHeadless.value(chess);
+            blackAlgorithm.value.algorithmHeadless(chess);
         }
     }
 
@@ -175,27 +115,17 @@ onBeforeMount(() => {
     <br />
 
     WHITE
-    <select
-        name="White Algorithm"
-        id="white"
-        @change="changeAlgorithm(Side.White)"
-        v-model="whiteAlgorithmSelected"
-    >
-        <option v-for="(algo, i) in allAlgorithms" :key="algo" :value="algo">
-            {{ Algorithms[i] }}
+    <select name="White Algorithm" id="white" v-model="whiteAlgorithm">
+        <option v-for="(algo, i) in allAlgorithms" :key="i" :value="algo">
+            {{ algo.name }}
         </option>
     </select>
 
     <br />
     BLACK
-    <select
-        name="Black Algorithm"
-        id="black"
-        @change="changeAlgorithm(Side.Black)"
-        v-model="blackAlgorithmSelected"
-    >
-        <option v-for="(algo, i) in allAlgorithms" :key="algo" :value="algo">
-            {{ Algorithms[i] }}
+    <select name="Black Algorithm" id="black" v-model="blackAlgorithm">
+        <option v-for="(algo, i) in allAlgorithms" :key="i" :value="algo">
+            {{ algo.name }}
         </option>
     </select>
 
