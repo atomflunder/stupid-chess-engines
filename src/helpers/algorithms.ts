@@ -1,50 +1,44 @@
 import { firstMove, firstMoveHeadless } from './algorithms/first';
+import { longestMove, longestMoveHeadless } from './algorithms/longest';
 import { pacifistMove, pacifistMoveHeadless } from './algorithms/pacifist';
 import { pawnMove, pawnMoveHeadless } from './algorithms/pawn';
 import { randomMove, randomMoveHeadless } from './algorithms/random';
 import { warMove, warMoveHeadless } from './algorithms/war';
 
-export enum Algorithms {
-    Random,
-    First,
-    Pawn,
-    War,
-    Pacifist
-}
-
 export const allAlgorithms = {
     random: {
-        type: Algorithms.Random,
+        name: 'Random',
         algorithm: randomMove,
-        algorithmHeadless: randomMoveHeadless,
-        name: 'Random'
+        algorithmHeadless: randomMoveHeadless
     },
 
     first: {
-        type: Algorithms.First,
+        name: 'First',
         algorithm: firstMove,
-        algorithmHeadless: firstMoveHeadless,
-        name: 'First'
+        algorithmHeadless: firstMoveHeadless
     },
 
     pawn: {
-        type: Algorithms.Pawn,
+        name: 'Pawn',
         algorithm: pawnMove,
-        algorithmHeadless: pawnMoveHeadless,
-        name: 'Pawn'
+        algorithmHeadless: pawnMoveHeadless
     },
 
     war: {
-        type: Algorithms.War,
+        name: 'War',
         algorithm: warMove,
-        algorithmHeadless: warMoveHeadless,
-        name: 'War'
+        algorithmHeadless: warMoveHeadless
     },
 
     pacifist: {
-        type: Algorithms.Pacifist,
+        name: 'Pacifist',
         algorithm: pacifistMove,
-        algorithmHeadless: pacifistMoveHeadless,
-        name: 'Pacifist'
+        algorithmHeadless: pacifistMoveHeadless
+    },
+
+    longest: {
+        name: 'Longest',
+        algorithm: longestMove,
+        algorithmHeadless: longestMoveHeadless
     }
 };
