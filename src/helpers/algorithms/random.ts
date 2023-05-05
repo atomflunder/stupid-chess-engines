@@ -1,5 +1,6 @@
 import type { Chess } from 'chess.js';
 import type { BoardApi } from 'vue3-chessboard';
+import { makeMove } from '../move';
 
 /**
  * This algorithm will make a random move.
@@ -9,8 +10,5 @@ export function randomMove(chess: Chess, boardAPI: BoardApi | null = null) {
 
     const move = moves[Math.floor(Math.random() * moves.length)];
 
-    if (boardAPI) {
-        boardAPI.move(move);
-    }
-    chess.move(move);
+    makeMove(move, chess, boardAPI);
 }

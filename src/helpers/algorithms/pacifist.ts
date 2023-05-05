@@ -1,5 +1,6 @@
 import type { Chess } from 'chess.js';
 import type { BoardApi } from 'vue3-chessboard';
+import { makeMove } from '../move';
 
 /**
  * This algorithm will always try to avoid checkmating, avoid checking and avoid taking pieces.
@@ -17,8 +18,5 @@ export function pacifistMove(chess: Chess, boardAPI: BoardApi | null = null) {
             ? pacifistMoves[Math.floor(Math.random() * pacifistMoves.length)]
             : moves[Math.floor(Math.random() * moves.length)];
 
-    if (boardAPI) {
-        boardAPI.move(move);
-    }
-    chess.move(move);
+    makeMove(move, chess, boardAPI);
 }

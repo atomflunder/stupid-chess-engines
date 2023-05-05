@@ -1,5 +1,6 @@
 import type { Chess } from 'chess.js';
 import type { BoardApi } from 'vue3-chessboard';
+import { makeMove } from '../move';
 
 /**
  * This algorithm will always try to checkmate the opponent.
@@ -15,10 +16,7 @@ export function warMove(chess: Chess, boardAPI: BoardApi | null = null) {
     if (checkmateMoves.length > 0) {
         const move = checkmateMoves[Math.floor(Math.random() * checkmateMoves.length)];
 
-        if (boardAPI) {
-            boardAPI.move(move);
-        }
-        chess.move(move);
+        makeMove(move, chess, boardAPI);
         return;
     }
 
@@ -27,10 +25,7 @@ export function warMove(chess: Chess, boardAPI: BoardApi | null = null) {
     if (checkMoves.length > 0) {
         const move = checkMoves[Math.floor(Math.random() * checkmateMoves.length)];
 
-        if (boardAPI) {
-            boardAPI.move(move);
-        }
-        chess.move(move);
+        makeMove(move, chess, boardAPI);
         return;
     }
 
@@ -41,8 +36,5 @@ export function warMove(chess: Chess, boardAPI: BoardApi | null = null) {
             ? takeMoves[Math.floor(Math.random() * takeMoves.length)]
             : moves[Math.floor(Math.random() * moves.length)];
 
-    if (boardAPI) {
-        boardAPI.move(move);
-    }
-    chess.move(move);
+    makeMove(move, chess, boardAPI);
 }

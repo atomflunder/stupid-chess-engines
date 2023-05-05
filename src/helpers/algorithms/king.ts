@@ -1,5 +1,6 @@
 import type { Chess } from 'chess.js';
 import type { BoardApi } from 'vue3-chessboard';
+import { makeMove } from '../move';
 
 /**
  * This algorithm will always try to move their King.
@@ -15,8 +16,5 @@ export function kingMove(chess: Chess, boardAPI: BoardApi | null = null) {
             ? kingMoves[Math.floor(Math.random() * kingMoves.length)]
             : moves[Math.floor(Math.random() * moves.length)];
 
-    if (boardAPI) {
-        boardAPI.move(move);
-    }
-    chess.move(move);
+    makeMove(move, chess, boardAPI);
 }

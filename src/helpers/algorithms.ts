@@ -9,6 +9,7 @@ import { randomMove } from './algorithms/random';
 import { warMove } from './algorithms/war';
 import { whiteMove } from './algorithms/white';
 import type { BoardApi } from 'vue3-chessboard';
+import { stockfishMove } from './algorithms/stockfish';
 
 export const allAlgorithms = {
     none: {
@@ -60,5 +61,10 @@ export const allAlgorithms = {
     white: {
         name: 'White',
         algorithm: whiteMove
+    },
+
+    stockfish: {
+        name: 'Stockfish 11',
+        algorithm: stockfishMove
     }
 };

@@ -1,5 +1,6 @@
 import type { Chess } from 'chess.js';
 import type { BoardApi } from 'vue3-chessboard';
+import { makeMove } from '../move';
 
 /**
  * This algorithm will always try to move their pawns.
@@ -15,8 +16,5 @@ export function pawnMove(chess: Chess, boardAPI: BoardApi | null = null) {
             ? pawnMoves[Math.floor(Math.random() * pawnMoves.length)]
             : moves[Math.floor(Math.random() * moves.length)];
 
-    if (boardAPI) {
-        boardAPI.move(move.san);
-    }
-    chess.move(move.san);
+    makeMove(move.san, chess, boardAPI);
 }
