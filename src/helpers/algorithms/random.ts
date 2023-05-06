@@ -1,14 +1,13 @@
-import type { Chess } from 'chess.js';
-import type { BoardApi } from 'vue3-chessboard';
 import { makeMove } from '../move';
+import type { AlgorithmVars } from '../algorithms';
 
 /**
  * This algorithm will make a random move.
  */
-export function randomMove(chess: Chess, boardAPI: BoardApi | null = null) {
-    const moves = chess.moves();
+export function randomMove(algorithmVars: AlgorithmVars) {
+    const moves = algorithmVars.chess.moves();
 
     const move = moves[Math.floor(Math.random() * moves.length)];
 
-    makeMove(move, chess, boardAPI);
+    makeMove(move, algorithmVars.chess, algorithmVars.boardAPI);
 }

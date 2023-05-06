@@ -1,14 +1,13 @@
-import type { Chess } from 'chess.js';
-import type { BoardApi } from 'vue3-chessboard';
 import { makeMove } from '../move';
+import type { AlgorithmVars } from '../algorithms';
 
 /**
  * This algorithm will just make the first move sorted.
  */
-export function firstMove(chess: Chess, boardAPI: BoardApi | null = null) {
-    const moves = chess.moves();
+export function firstMove(algorithmVars: AlgorithmVars) {
+    const moves = algorithmVars.chess.moves();
 
     moves.sort();
 
-    makeMove(moves[0], chess, boardAPI);
+    makeMove(moves[0], algorithmVars.chess, algorithmVars.boardAPI);
 }

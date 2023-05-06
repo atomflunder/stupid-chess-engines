@@ -1,13 +1,12 @@
-import type { Chess } from 'chess.js';
-import type { BoardApi } from 'vue3-chessboard';
 import { makeMove } from '../move';
+import type { AlgorithmVars } from '../algorithms';
 
 /**
  * This algorithm will always try to move their pawns.
  * If that is not possible we just make a random move.
  */
-export function pawnMove(chess: Chess, boardAPI: BoardApi | null = null) {
-    const moves = chess.moves({ verbose: true });
+export function pawnMove(algorithmVars: AlgorithmVars) {
+    const moves = algorithmVars.chess.moves({ verbose: true });
 
     const pawnMoves = moves.filter((s) => s.piece === 'p');
 
@@ -16,5 +15,5 @@ export function pawnMove(chess: Chess, boardAPI: BoardApi | null = null) {
             ? pawnMoves[Math.floor(Math.random() * pawnMoves.length)]
             : moves[Math.floor(Math.random() * moves.length)];
 
-    makeMove(move.san, chess, boardAPI);
+    makeMove(move.san, algorithmVars.chess, algorithmVars.boardAPI);
 }

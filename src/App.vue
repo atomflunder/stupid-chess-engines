@@ -17,6 +17,8 @@ const boardConfig: BoardConfig = {
     coordinates: true
 };
 
+const stockfishDepth = '10';
+
 let whiteElo = ref(1000);
 let blackElo = ref(1000);
 let outcomes = ref([0, 0, 0]);
@@ -34,19 +36,35 @@ function createBoard(api: BoardApi) {
 const chess = ref(new Chess());
 let history = ref('');
 
+const stockfish = new Worker('./src/stockfish/src/stockfish.js');
+stockfish.postMessage('uci');
+stockfish.postMessage('ucinewgame');
+
+const evaluation = ref('0');
+
 function simulate() {
     function turn() {
         if (!stopForeground.value) {
+            stockfish.postMessage(`position fen ${chess.value.fen()}`);
+            stockfish.postMessage(`go depth ${stockfishDepth}`);
+
             if (chess.value.turn() === 'w') {
-                whiteAlgorithm.value.algorithm(chess.value as Chess, boardAPI.value!);
+                whiteAlgorithm.value.algorithm({
+                    chess: chess.value as Chess,
+                    boardAPI: boardAPI.value,
+                    stockfishWorker: stockfish,
+                    stockfishDepth: stockfishDepth
+                });
             } else {
-                blackAlgorithm.value.algorithm(chess.value as Chess, boardAPI.value!);
+                blackAlgorithm.value.algorithm({
+                    chess: chess.value as Chess,
+                    boardAPI: boardAPI.value,
+                    stockfishWorker: stockfish,
+                    stockfishDepth: stockfishDepth
+                });
             }
 
-            history.value = chess.value.pgn({
-                maxWidth: 1,
-                newline: '\n'
-            });
+            updateEvalHistory();
         }
 
         if (chess.value.isGameOver()) {
@@ -59,11 +77,38 @@ function simulate() {
     turn();
 }
 
+function updateEvalHistory() {
+    history.value = chess.value.pgn({
+        maxWidth: 1,
+        newline: '\n'
+    });
+
+    stockfish.addEventListener('message', (event) => {
+        if (event.data.includes(`depth ${stockfishDepth}`)) {
+            if (event.data.includes('score cp')) {
+                evaluation.value = (event.data.split(' ')[9] / 100).toString();
+            } else if (event.data.includes('score mate')) {
+                const mateIn = event.data.split(' ')[9];
+
+                evaluation.value = mateIn === undefined ? '#' : `M${mateIn}`;
+            }
+        }
+    });
+}
+
 function parseMove(move: Move) {
+    updateEvalHistory();
+
     if (move.color === 'w' && whiteAlgorithm.value.name === allAlgorithms.none.name) {
         chess.value.move(move.san);
+
+        stockfish.postMessage(`position fen ${chess.value.fen()}`);
+        stockfish.postMessage(`go depth ${stockfishDepth}`);
     } else if (move.color === 'b' && blackAlgorithm.value.name === allAlgorithms.none.name) {
         chess.value.move(move.san);
+
+        stockfish.postMessage(`position fen ${chess.value.fen()}`);
+        stockfish.postMessage(`go depth ${stockfishDepth}`);
     }
 }
 
@@ -81,9 +126,17 @@ function simulateMore() {
 
     while (!chess.isGameOver()) {
         if (chess.turn() === 'w') {
-            whiteAlgorithm.value.algorithm(chess);
+            whiteAlgorithm.value.algorithm({
+                chess: chess,
+                boardAPI: undefined,
+                stockfishWorker: stockfish
+            });
         } else {
-            blackAlgorithm.value.algorithm(chess);
+            blackAlgorithm.value.algorithm({
+                chess: chess,
+                boardAPI: undefined,
+                stockfishWorker: stockfish
+            });
         }
     }
 
@@ -148,6 +201,8 @@ onBeforeMount(() => {
                 {{ algo.name }}
             </option>
         </select>
+
+        <div>EVAL: {{ evaluation }}</div>
 
         <div>MOVES:</div>
         <p style="white-space: pre-line">{{ history }}</p>

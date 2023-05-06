@@ -1,5 +1,4 @@
-import type { Chess } from 'chess.js';
-import type { BoardApi } from 'vue3-chessboard';
+import type { AlgorithmVars } from '../algorithms';
 import { makeMove } from '../move';
 
 /**
@@ -8,15 +7,15 @@ import { makeMove } from '../move';
  * and if that is impossible it will try to take an enemy piece.
  * If that is also not possible we just make a random move.
  */
-export function warMove(chess: Chess, boardAPI: BoardApi | null = null) {
-    const moves = chess.moves();
+export function warMove(algorithmVars: AlgorithmVars) {
+    const moves = algorithmVars.chess.moves();
 
     const checkmateMoves = moves.filter((s) => s.indexOf('#') !== -1);
 
     if (checkmateMoves.length > 0) {
         const move = checkmateMoves[Math.floor(Math.random() * checkmateMoves.length)];
 
-        makeMove(move, chess, boardAPI);
+        makeMove(move, algorithmVars.chess, algorithmVars.boardAPI);
         return;
     }
 
@@ -25,7 +24,7 @@ export function warMove(chess: Chess, boardAPI: BoardApi | null = null) {
     if (checkMoves.length > 0) {
         const move = checkMoves[Math.floor(Math.random() * checkmateMoves.length)];
 
-        makeMove(move, chess, boardAPI);
+        makeMove(move, algorithmVars.chess, algorithmVars.boardAPI);
         return;
     }
 
@@ -36,5 +35,5 @@ export function warMove(chess: Chess, boardAPI: BoardApi | null = null) {
             ? takeMoves[Math.floor(Math.random() * takeMoves.length)]
             : moves[Math.floor(Math.random() * moves.length)];
 
-    makeMove(move, chess, boardAPI);
+    makeMove(move, algorithmVars.chess, algorithmVars.boardAPI);
 }

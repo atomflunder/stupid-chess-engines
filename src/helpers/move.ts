@@ -3,10 +3,14 @@ import type { BoardApi } from 'vue3-chessboard';
 
 export function makeMove(move: string, chess: Chess, boardAPI: BoardApi | null = null): void {
     if (move !== undefined) {
-        chess.move(move);
+        try {
+            chess.move(move);
 
-        if (boardAPI) {
-            boardAPI.move(move);
+            if (boardAPI) {
+                boardAPI.move(move);
+            }
+        } catch {
+            return;
         }
     }
 }
