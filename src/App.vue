@@ -85,12 +85,26 @@ function updateEvalHistory() {
 
     stockfish.addEventListener('message', (event) => {
         if (event.data.includes(`depth ${stockfishDepth}`)) {
-            if (event.data.includes('score cp')) {
-                evaluation.value = (event.data.split(' ')[9] / 100).toString();
-            } else if (event.data.includes('score mate')) {
-                const mateIn = event.data.split(' ')[9];
+            const ev = Number(event.data.split(' ')[9]);
 
-                evaluation.value = mateIn === undefined ? '#' : `M${mateIn}`;
+            if (event.data.includes('score cp')) {
+                if (chess.value.turn() === 'w') {
+                    if (ev > 0) {
+                        evaluation.value = '+' + (ev / 100).toString();
+                    } else if (ev < 0) {
+                        evaluation.value = (ev / 100).toString();
+                    }
+                }
+
+                if (chess.value.turn() === 'b') {
+                    if (ev > 0) {
+                        evaluation.value = (-ev / 100).toString();
+                    } else if (ev < 0) {
+                        evaluation.value = '+' + -(ev / 100).toString();
+                    }
+                }
+            } else if (event.data.includes('score mate')) {
+                evaluation.value = ev === undefined ? 'Checkmate' : `M${ev}`;
             }
         }
     });
