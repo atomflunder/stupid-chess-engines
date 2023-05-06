@@ -97,18 +97,20 @@ function updateEvalHistory() {
 }
 
 function parseMove(move: Move) {
-    updateEvalHistory();
-
     if (move.color === 'w' && whiteAlgorithm.value.name === allAlgorithms.none.name) {
         chess.value.move(move.san);
 
         stockfish.postMessage(`position fen ${chess.value.fen()}`);
         stockfish.postMessage(`go depth ${stockfishDepth}`);
+
+        updateEvalHistory();
     } else if (move.color === 'b' && blackAlgorithm.value.name === allAlgorithms.none.name) {
         chess.value.move(move.san);
 
         stockfish.postMessage(`position fen ${chess.value.fen()}`);
         stockfish.postMessage(`go depth ${stockfishDepth}`);
+
+        updateEvalHistory();
     }
 }
 
