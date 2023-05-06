@@ -11,17 +11,17 @@ import { randomMove } from './algorithms/random';
 import { warMove } from './algorithms/war';
 import { whiteMove } from './algorithms/white';
 import { stockfishMove } from './algorithms/stockfish';
+import { stockfishRandomMove } from './algorithms/stockfishRandom';
 
 export interface AlgorithmVars {
     chess: Chess;
     boardAPI?: BoardApi;
-    stockfishWorker?: Worker;
     stockfishDepth?: string;
 }
 
 export const allAlgorithms = {
     none: {
-        name: 'None',
+        name: 'None (Player Controlled)',
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         algorithm: (_algorithmVars: AlgorithmVars): void => {}
     },
@@ -32,17 +32,17 @@ export const allAlgorithms = {
     },
 
     first: {
-        name: 'First',
+        name: 'First Move Sorted',
         algorithm: firstMove
     },
 
     pawn: {
-        name: 'Pawn',
+        name: 'Pawn Pusher',
         algorithm: pawnMove
     },
 
     war: {
-        name: 'War',
+        name: 'Aggressive',
         algorithm: warMove
     },
 
@@ -52,27 +52,32 @@ export const allAlgorithms = {
     },
 
     longest: {
-        name: 'Longest',
+        name: 'Longest Move',
         algorithm: longestMove
     },
 
     king: {
-        name: 'King',
+        name: 'Battle King',
         algorithm: kingMove
     },
 
     black: {
-        name: 'Black',
+        name: 'Black Squares',
         algorithm: blackMove
     },
 
     white: {
-        name: 'White',
+        name: 'White Squares',
         algorithm: whiteMove
     },
 
     stockfish: {
         name: 'Stockfish 11',
         algorithm: stockfishMove
+    },
+
+    stockfishRandom: {
+        name: 'Stockfish / Random',
+        algorithm: stockfishRandomMove
     }
 };

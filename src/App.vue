@@ -53,14 +53,12 @@ function simulate() {
                 whiteAlgorithm.value.algorithm({
                     chess: chess.value as Chess,
                     boardAPI: boardAPI.value,
-                    stockfishWorker: stockfish,
                     stockfishDepth: stockfishDepth
                 });
-            } else {
+            } else if (chess.value.turn() === 'b') {
                 blackAlgorithm.value.algorithm({
                     chess: chess.value as Chess,
                     boardAPI: boardAPI.value,
-                    stockfishWorker: stockfish,
                     stockfishDepth: stockfishDepth
                 });
             }
@@ -69,7 +67,15 @@ function simulate() {
         }
 
         if (chess.value.isGameOver()) {
-            return;
+            setTimeout(() => {
+                handleGameOver(chess.value as Chess);
+
+                boardAPI!.value?.resetBoard();
+                chess.value.reset();
+                stockfish.postMessage('ucinewgame');
+
+                turn();
+            }, 5000);
         } else {
             setTimeout(turn, 800);
         }
@@ -84,7 +90,7 @@ function updateEvalHistory() {
         newline: '\n'
     });
 
-    stockfish.addEventListener('message', (event) => {
+    function updateEval(event: MessageEvent) {
         if (event.data.includes(`depth ${stockfishDepth}`)) {
             const ev = Number(event.data.split(' ')[9]);
 
@@ -99,16 +105,20 @@ function updateEvalHistory() {
 
                 if (chess.value.turn() === 'b') {
                     if (ev > 0) {
-                        evaluation.value = (-ev / 100).toString();
+                        evaluation.value = '-' + (ev / 100).toString();
                     } else if (ev < 0) {
-                        evaluation.value = '+' + -(ev / 100).toString();
+                        evaluation.value = '+' + Math.abs(ev / 100).toString();
                     }
                 }
             } else if (event.data.includes('score mate')) {
-                evaluation.value = ev === undefined ? 'Checkmate' : `M${ev}`;
+                evaluation.value = ev === undefined ? 'Checkmate' : `M${Math.abs(ev)}`;
             }
+
+            removeEventListener('message', updateEval);
         }
-    });
+    }
+
+    stockfish.addEventListener('message', updateEval);
 }
 
 function parseMove(move: Move) {
@@ -126,6 +136,33 @@ function parseMove(move: Move) {
         stockfish.postMessage(`go depth ${stockfishDepth}`);
 
         updateEvalHistory();
+    }
+}
+
+function handleGameOver(chess: Chess) {
+    if (chess.isCheckmate()) {
+        if (chess.turn() === 'w') {
+            [whiteElo.value, blackElo.value] = calculateElo(
+                whiteElo.value,
+                blackElo.value,
+                Outcome.Loss
+            );
+            outcomes.value[1]++;
+        } else {
+            [whiteElo.value, blackElo.value] = calculateElo(
+                whiteElo.value,
+                blackElo.value,
+                Outcome.Win
+            );
+            outcomes.value[0]++;
+        }
+    } else {
+        [whiteElo.value, blackElo.value] = calculateElo(
+            whiteElo.value,
+            blackElo.value,
+            Outcome.Draw
+        );
+        outcomes.value[2]++;
     }
 }
 
@@ -150,49 +187,20 @@ function simulateMore() {
 
     function advanceTurn() {
         if (chess.isGameOver()) {
-            handleGameOver();
+            handleGameOver(chess);
             clearInterval(interval);
         } else {
             if (chess.turn() === 'w') {
                 whiteAlgorithm.value.algorithm({
                     chess: chess,
-                    boardAPI: undefined,
-                    stockfishWorker: stockfishThread
+                    boardAPI: undefined
                 });
             } else {
                 blackAlgorithm.value.algorithm({
                     chess: chess,
-                    boardAPI: undefined,
-                    stockfishWorker: stockfishThread
+                    boardAPI: undefined
                 });
             }
-        }
-    }
-
-    function handleGameOver() {
-        if (chess.isCheckmate()) {
-            if (chess.turn() === 'w') {
-                [whiteElo.value, blackElo.value] = calculateElo(
-                    whiteElo.value,
-                    blackElo.value,
-                    Outcome.Loss
-                );
-                outcomes.value[1]++;
-            } else {
-                [whiteElo.value, blackElo.value] = calculateElo(
-                    whiteElo.value,
-                    blackElo.value,
-                    Outcome.Win
-                );
-                outcomes.value[0]++;
-            }
-        } else {
-            [whiteElo.value, blackElo.value] = calculateElo(
-                whiteElo.value,
-                blackElo.value,
-                Outcome.Draw
-            );
-            outcomes.value[2]++;
         }
     }
 }

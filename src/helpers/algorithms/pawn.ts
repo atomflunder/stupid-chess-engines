@@ -15,5 +15,9 @@ export function pawnMove(algorithmVars: AlgorithmVars) {
             ? pawnMoves[Math.floor(Math.random() * pawnMoves.length)]
             : moves[Math.floor(Math.random() * moves.length)];
 
+    if (!move) {
+        return;
+    }
+
     makeMove(move.san, algorithmVars.chess, algorithmVars.boardAPI);
 }

@@ -14,5 +14,9 @@ export function whiteMove(algorithmVars: AlgorithmVars) {
             ? whiteMoves[Math.floor(Math.random() * whiteMoves.length)]
             : moves[Math.floor(Math.random() * moves.length)];
 
+    if (!move) {
+        return;
+    }
+
     makeMove(move.san, algorithmVars.chess, algorithmVars.boardAPI);
 }
