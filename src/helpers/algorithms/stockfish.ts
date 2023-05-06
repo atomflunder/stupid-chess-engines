@@ -2,12 +2,13 @@ import type { Chess } from 'chess.js';
 import type { BoardApi } from 'vue3-chessboard';
 import { makeMove } from '../move';
 
-const stockfish = new Worker('./src/helpers/algorithms/stockfish/src/stockfish.js');
+const stockfish = new Worker('./src/stockfish/src/stockfish.js');
 stockfish.postMessage('uci');
 stockfish.postMessage('ucinewgame');
 
 /**
  * This algorithm will ask Stockfish 11 for the best move.
+ * Stockfish 11 has an Elo score of around 3468, but we are "only" running it with a depth of 10.
  * Not recommended to be ran in the background.
  */
 export function stockfishMove(chess: Chess, boardAPI: BoardApi | null = null) {
