@@ -17,8 +17,6 @@ const boardConfig: BoardConfig = {
     coordinates: true
 };
 
-const stockfishDepth = '10';
-
 let whiteElo = ref(1000);
 let blackElo = ref(1000);
 let gamesStarted = ref(0);
@@ -39,14 +37,19 @@ let history = ref('');
 const stockfish = new Worker('./src/stockfish/src/stockfish.js');
 stockfish.postMessage('uci');
 stockfish.postMessage('ucinewgame');
+
 stockfish.addEventListener('message', updateEval);
 stockfish.addEventListener('message', updateBestMove);
 
 let evaluation = ref('0');
 let bestMove = ref('');
+let stockfishSkillLevel = ref(20);
+let stockfishDepth = ref(10);
+let stockfishMaxError = ref(200);
+let stockfishProbability = ref(128);
 
 function updateEval(event: MessageEvent) {
-    if (event.data.includes(`depth ${stockfishDepth}`)) {
+    if (event.data.includes(`depth ${stockfishDepth.value}`)) {
         const ev = Number(event.data.split(' ')[9]);
 
         if (event.data.includes('score cp')) {
@@ -71,6 +74,16 @@ function updateEval(event: MessageEvent) {
     }
 }
 
+function setStockfishOptions(stockfish: Worker) {
+    stockfish.postMessage(`setoption name Skill Level value ${stockfishSkillLevel.value}`);
+    stockfish.postMessage(
+        `setoption name Skill Level Maximum Error value ${stockfishMaxError.value}`
+    );
+    stockfish.postMessage(
+        `setoption name Skill Level Probability value ${stockfishProbability.value}`
+    );
+}
+
 function updateBestMove(event: MessageEvent) {
     if (event.data.includes('bestmove')) {
         bestMove.value = event.data.split(' ')[1];
@@ -81,7 +94,8 @@ function simulate() {
     function turn() {
         if (!stopForeground.value) {
             stockfish.postMessage(`position fen ${chess.value.fen()}`);
-            stockfish.postMessage(`go depth ${stockfishDepth}`);
+            setStockfishOptions(stockfish);
+            stockfish.postMessage(`go depth ${stockfishDepth.value}`);
 
             if (chess.value.turn() === 'w') {
                 whiteAlgorithm.value.algorithm({
@@ -132,14 +146,16 @@ function parseMove(move: Move) {
         chess.value.move(move.san);
 
         stockfish.postMessage(`position fen ${chess.value.fen()}`);
-        stockfish.postMessage(`go depth ${stockfishDepth}`);
+        setStockfishOptions(stockfish);
+        stockfish.postMessage(`go depth ${stockfishDepth.value}`);
 
         updateHistory();
     } else if (move.color === 'b' && blackAlgorithm.value.name === allAlgorithms.none.name) {
         chess.value.move(move.san);
 
         stockfish.postMessage(`position fen ${chess.value.fen()}`);
-        stockfish.postMessage(`go depth ${stockfishDepth}`);
+        setStockfishOptions(stockfish);
+        stockfish.postMessage(`go depth ${stockfishDepth.value}`);
 
         updateHistory();
     }
@@ -187,6 +203,7 @@ function simulateMore() {
 
     const stockfishThread = new Worker('./src/stockfish/src/stockfish.js');
     stockfishThread.postMessage('ucinewgame');
+    setStockfishOptions(stockfish);
 
     const interval = setInterval(advanceTurn, 100);
 
@@ -202,7 +219,7 @@ function simulateMore() {
 
     function advanceTurn() {
         stockfishThread.postMessage(`position fen ${chess.fen()}`);
-        stockfishThread.postMessage(`go depth ${stockfishDepth}`);
+        stockfishThread.postMessage(`go depth ${stockfishDepth.value}`);
 
         if (chess.isGameOver()) {
             handleGameOver(chess);
@@ -263,6 +280,21 @@ onBeforeMount(() => {
 
         <div>EVAL: {{ evaluation }}</div>
         <div>BEST MOVE: {{ bestMove }}</div>
+        <div>
+            STOCKFISH SETTINGS
+            <br />
+            <input type="range" min="0" max="20" v-model="stockfishSkillLevel" />
+            LEVEL: {{ stockfishSkillLevel }}
+            <br />
+            <input type="range" min="1" max="20" v-model="stockfishDepth" />
+            DEPTH: {{ stockfishDepth }}
+            <br />
+            <input type="range" min="0" max="5000" v-model="stockfishMaxError" />
+            MAX ERROR: {{ stockfishMaxError }}
+            <br />
+            <input type="range" min="1" max="1000" v-model="stockfishProbability" />
+            PROBABILITY: {{ stockfishProbability }}
+        </div>
 
         <div>MOVES:</div>
         <p style="white-space: pre-line">{{ history }}</p>
