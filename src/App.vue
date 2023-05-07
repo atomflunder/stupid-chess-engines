@@ -24,7 +24,6 @@ let blackElo = ref(1000);
 let gamesStarted = ref(0);
 let outcomes = ref([0, 0, 0]);
 
-let stopBackground = ref(true);
 let stopForeground = ref(true);
 
 let whiteAlgorithm = ref(allAlgorithms.none);
@@ -40,8 +39,43 @@ let history = ref('');
 const stockfish = new Worker('./src/stockfish/src/stockfish.js');
 stockfish.postMessage('uci');
 stockfish.postMessage('ucinewgame');
+stockfish.addEventListener('message', updateEval);
+stockfish.addEventListener('message', updateBestMove);
 
-const evaluation = ref('0');
+let evaluation = ref('0');
+let bestMove = ref('');
+
+function updateEval(event: MessageEvent) {
+    if (event.data.includes(`depth ${stockfishDepth}`)) {
+        const ev = Number(event.data.split(' ')[9]);
+
+        if (event.data.includes('score cp')) {
+            if (chess.value.turn() === 'w') {
+                if (ev > 0) {
+                    evaluation.value = '+' + (ev / 100).toString();
+                } else if (ev < 0) {
+                    evaluation.value = (ev / 100).toString();
+                }
+            }
+
+            if (chess.value.turn() === 'b') {
+                if (ev > 0) {
+                    evaluation.value = '-' + (ev / 100).toString();
+                } else if (ev < 0) {
+                    evaluation.value = '+' + Math.abs(ev / 100).toString();
+                }
+            }
+        } else if (event.data.includes('score mate')) {
+            evaluation.value = ev === undefined ? 'Checkmate' : `M${Math.abs(ev)}`;
+        }
+    }
+}
+
+function updateBestMove(event: MessageEvent) {
+    if (event.data.includes('bestmove')) {
+        bestMove.value = event.data.split(' ')[1];
+    }
+}
 
 function simulate() {
     function turn() {
@@ -53,17 +87,19 @@ function simulate() {
                 whiteAlgorithm.value.algorithm({
                     chess: chess.value as Chess,
                     boardAPI: boardAPI.value,
-                    stockfishDepth: stockfishDepth
+                    bestMove: bestMove.value,
+                    eval: evaluation.value
                 });
             } else if (chess.value.turn() === 'b') {
                 blackAlgorithm.value.algorithm({
                     chess: chess.value as Chess,
                     boardAPI: boardAPI.value,
-                    stockfishDepth: stockfishDepth
+                    bestMove: bestMove.value,
+                    eval: evaluation.value
                 });
             }
 
-            updateEvalHistory();
+            updateHistory();
         }
 
         if (chess.value.isGameOver()) {
@@ -84,41 +120,11 @@ function simulate() {
     turn();
 }
 
-function updateEvalHistory() {
+function updateHistory() {
     history.value = chess.value.pgn({
         maxWidth: 1,
         newline: '\n'
     });
-
-    function updateEval(event: MessageEvent) {
-        if (event.data.includes(`depth ${stockfishDepth}`)) {
-            const ev = Number(event.data.split(' ')[9]);
-
-            if (event.data.includes('score cp')) {
-                if (chess.value.turn() === 'w') {
-                    if (ev > 0) {
-                        evaluation.value = '+' + (ev / 100).toString();
-                    } else if (ev < 0) {
-                        evaluation.value = (ev / 100).toString();
-                    }
-                }
-
-                if (chess.value.turn() === 'b') {
-                    if (ev > 0) {
-                        evaluation.value = '-' + (ev / 100).toString();
-                    } else if (ev < 0) {
-                        evaluation.value = '+' + Math.abs(ev / 100).toString();
-                    }
-                }
-            } else if (event.data.includes('score mate')) {
-                evaluation.value = ev === undefined ? 'Checkmate' : `M${Math.abs(ev)}`;
-            }
-
-            removeEventListener('message', updateEval);
-        }
-    }
-
-    stockfish.addEventListener('message', updateEval);
 }
 
 function parseMove(move: Move) {
@@ -128,14 +134,14 @@ function parseMove(move: Move) {
         stockfish.postMessage(`position fen ${chess.value.fen()}`);
         stockfish.postMessage(`go depth ${stockfishDepth}`);
 
-        updateEvalHistory();
+        updateHistory();
     } else if (move.color === 'b' && blackAlgorithm.value.name === allAlgorithms.none.name) {
         chess.value.move(move.san);
 
         stockfish.postMessage(`position fen ${chess.value.fen()}`);
         stockfish.postMessage(`go depth ${stockfishDepth}`);
 
-        updateEvalHistory();
+        updateHistory();
     }
 }
 
@@ -168,15 +174,14 @@ function handleGameOver(chess: Chess) {
 
 function simulateMore() {
     if (
-        stopBackground.value ||
-        gamesStarted.value >= 100 ||
+        gamesStarted.value <= 0 ||
         whiteAlgorithm.value.name === allAlgorithms.none.name ||
         blackAlgorithm.value.name === allAlgorithms.none.name
     ) {
         return;
     }
 
-    gamesStarted.value++;
+    gamesStarted.value--;
 
     const chess = new Chess();
 
@@ -185,7 +190,20 @@ function simulateMore() {
 
     const interval = setInterval(advanceTurn, 100);
 
+    let bestMove = '';
+
+    function updateBestMove(event: MessageEvent) {
+        if (event.data.includes('bestmove')) {
+            bestMove = event.data.split(' ')[1];
+        }
+    }
+
+    stockfishThread.addEventListener('message', updateBestMove);
+
     function advanceTurn() {
+        stockfishThread.postMessage(`position fen ${chess.fen()}`);
+        stockfishThread.postMessage(`go depth ${stockfishDepth}`);
+
         if (chess.isGameOver()) {
             handleGameOver(chess);
             clearInterval(interval);
@@ -193,12 +211,14 @@ function simulateMore() {
             if (chess.turn() === 'w') {
                 whiteAlgorithm.value.algorithm({
                     chess: chess,
-                    boardAPI: undefined
+                    boardAPI: undefined,
+                    bestMove: bestMove
                 });
             } else {
                 blackAlgorithm.value.algorithm({
                     chess: chess,
-                    boardAPI: undefined
+                    boardAPI: undefined,
+                    bestMove: bestMove
                 });
             }
         }
@@ -206,7 +226,7 @@ function simulateMore() {
 }
 
 onBeforeMount(() => {
-    setInterval(simulateMore, 10);
+    setInterval(simulateMore, 100);
     simulate();
 });
 </script>
@@ -221,7 +241,7 @@ onBeforeMount(() => {
             Outcomes: W{{ outcomes[0] }} - B{{ outcomes[1] }} - D{{ outcomes[2] }}
         </div>
 
-        <button @click="stopBackground = !stopBackground">TOGGLE BACKGROUND GAMES</button>
+        <button @click="gamesStarted = 10">SIMULATE 10 GAMES</button>
         <button @click="stopForeground = !stopForeground">TOGGLE VISUALISED GAME</button>
 
         <br />
@@ -242,6 +262,7 @@ onBeforeMount(() => {
         </select>
 
         <div>EVAL: {{ evaluation }}</div>
+        <div>BEST MOVE: {{ bestMove }}</div>
 
         <div>MOVES:</div>
         <p style="white-space: pre-line">{{ history }}</p>

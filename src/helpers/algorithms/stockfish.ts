@@ -7,23 +7,5 @@ import type { AlgorithmVars } from '../algorithms';
  * Not recommended to be ran in the background, as it is "pretty CPU intensive" to run hundreds stockfish instances at once.
  */
 export function stockfishMove(algorithmVars: AlgorithmVars) {
-    const stockfishThread = new Worker('./src/stockfish/src/stockfish.js');
-    stockfishThread.postMessage('ucinewgame');
-
-    stockfishThread.postMessage(`position fen ${algorithmVars.chess.fen()}`);
-    stockfishThread.postMessage(`go depth ${algorithmVars.stockfishDepth}`);
-
-    function move(event: MessageEvent) {
-        if (event.data.includes('bestmove')) {
-            const bestMove = event.data.split(' ')[1];
-
-            makeMove(bestMove, algorithmVars.chess, algorithmVars.boardAPI);
-
-            removeEventListener('message', move);
-        }
-    }
-
-    stockfishThread.addEventListener('message', move);
-
-    // TODO: Make this more efficient
+    makeMove(algorithmVars.bestMove!, algorithmVars.chess, algorithmVars.boardAPI!);
 }

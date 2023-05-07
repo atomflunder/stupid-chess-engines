@@ -16,7 +16,8 @@ import { stockfishRandomMove } from './algorithms/stockfishRandom';
 export interface AlgorithmVars {
     chess: Chess;
     boardAPI?: BoardApi;
-    stockfishDepth?: string;
+    eval?: string;
+    bestMove?: string;
 }
 
 export const allAlgorithms = {
