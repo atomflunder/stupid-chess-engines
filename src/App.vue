@@ -250,6 +250,9 @@ onBeforeMount(() => {
 
 <template>
     <div class="sidebar">
+        <div><button @click="boardAPI?.toggleOrientation()">TOGGLE ORIENTATION</button></div>
+        <div><button @click="boardAPI?.toggleMoves()">TOGGLE MOVES</button></div>
+
         <div>
             White: {{ Math.floor(whiteElo) }}
             <br />
@@ -278,6 +281,7 @@ onBeforeMount(() => {
             </option>
         </select>
 
+        <div>MATERIAL: {{ boardAPI?.getMaterialCount().materialDiff }}</div>
         <div>EVAL: {{ evaluation }}</div>
         <div>BEST MOVE: {{ bestMove }}</div>
         <div>
