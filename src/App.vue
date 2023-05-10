@@ -260,6 +260,7 @@ onBeforeMount(() => {
 
                 <img
                     src="@/assets/knight-white.svg"
+                    title="White"
                     alt="pawn-icon"
                     width="32"
                     height="32"
@@ -282,6 +283,7 @@ onBeforeMount(() => {
 
                 <img
                     src="@/assets/knight-black.svg"
+                    title="Black"
                     alt="pawn-icon"
                     width="32"
                     height="32"
@@ -301,6 +303,7 @@ onBeforeMount(() => {
         <div class="stockfish">
             <img
                 src="@/assets/settings.svg"
+                title="Stockfish Settings"
                 alt="pawn-icon"
                 width="32"
                 height="32"
@@ -353,11 +356,29 @@ onBeforeMount(() => {
 
     <div class="center">
         <div>
-            <img src="@/assets/pawn.svg" alt="pawn-icon" width="16" height="16" />
+            <img
+                src="@/assets/pawn.svg"
+                alt="pawn-icon"
+                width="16"
+                height="16"
+                title="Material Difference"
+            />
             {{ boardAPI?.getMaterialCount().materialDiff }}
-            <img src="@/assets/eval.svg" alt="pawn-icon" width="16" height="16" />
+            <img
+                src="@/assets/eval.svg"
+                alt="eval-icon"
+                width="16"
+                height="16"
+                title="Stockfish Evaluation"
+            />
             {{ evaluation }}
-            <img src="@/assets/move.svg" alt="pawn-icon" width="16" height="16" />
+            <img
+                src="@/assets/move.svg"
+                alt="move-icon"
+                width="16"
+                height="16"
+                title="Stockfish Best Move"
+            />
             {{ bestMove }}
         </div>
 
