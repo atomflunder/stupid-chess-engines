@@ -12,6 +12,8 @@ import { warMove } from './algorithms/war';
 import { whiteMove } from './algorithms/white';
 import { stockfishMove } from './algorithms/stockfish';
 import { stockfishRandomMove } from './algorithms/stockfishRandom';
+import { swarmMove } from './algorithms/swarm';
+import { cuddleMove } from './algorithms/cuddle';
 
 export interface AlgorithmVars {
     chess: Chess;
@@ -47,9 +49,19 @@ export const allAlgorithms = {
         algorithm: warMove
     },
 
+    swarm: {
+        name: 'Swarm King',
+        algorithm: swarmMove
+    },
+
     pacifist: {
         name: 'Pacifist',
         algorithm: pacifistMove
+    },
+
+    cuddle: {
+        name: 'Cuddle King',
+        algorithm: cuddleMove
     },
 
     longest: {
