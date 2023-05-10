@@ -14,6 +14,7 @@ import { stockfishMove } from './algorithms/stockfish';
 import { stockfishRandomMove } from './algorithms/stockfishRandom';
 import { swarmMove } from './algorithms/swarm';
 import { cuddleMove } from './algorithms/cuddle';
+import { infiltrationMove } from './algorithms/infiltration';
 
 export interface AlgorithmVars {
     chess: Chess;
@@ -62,6 +63,11 @@ export const allAlgorithms = {
     cuddle: {
         name: 'Cuddle King',
         algorithm: cuddleMove
+    },
+
+    infiltration: {
+        name: 'King Infiltration',
+        algorithm: infiltrationMove
     },
 
     longest: {
