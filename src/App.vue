@@ -307,6 +307,7 @@ onBeforeMount(() => {
                 class="black-outline"
                 style="grid-row: 1"
             />
+            <div style="grid-row: 1">STOCKFISH SETTINGS</div>
 
             <input
                 class="slider"
