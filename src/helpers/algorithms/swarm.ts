@@ -56,8 +56,6 @@ export function swarmMove(algorithmVars: AlgorithmVars) {
             }
         }
 
-        console.log(m, sumOfDistance);
-
         moveDistances.push(sumOfDistance);
     }
 
