@@ -1,5 +1,5 @@
 /**
- * // The Chebyshev Distance between two squares.
+ * The Chebyshev Distance between two squares.
  */
 export function calculateDistance(sq1: string, sq2: string): number {
     const x1 = sq1.charCodeAt(0) - 96;

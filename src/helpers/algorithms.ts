@@ -15,6 +15,10 @@ import { stockfishRandomMove } from './algorithms/stockfishRandom';
 import { swarmMove } from './algorithms/swarm';
 import { cuddleMove } from './algorithms/cuddle';
 import { infiltrationMove } from './algorithms/infiltration';
+import { panicfishMove } from './algorithms/panicfish';
+import { lawyerMove } from './algorithms/lawyer';
+import { criminalMove } from './algorithms/criminal';
+import { trueRandomMove } from './algorithms/trueRandom';
 
 export interface AlgorithmVars {
     chess: Chess;
@@ -33,6 +37,11 @@ export const allAlgorithms = {
     random: {
         name: 'Random',
         algorithm: randomMove
+    },
+
+    trueRandom: {
+        name: 'True Random',
+        algorithm: trueRandomMove
     },
 
     first: {
@@ -90,9 +99,24 @@ export const allAlgorithms = {
         algorithm: whiteMove
     },
 
+    lawyer: {
+        name: 'Lawyer',
+        algorithm: lawyerMove
+    },
+
+    criminal: {
+        name: 'Criminal',
+        algorithm: criminalMove
+    },
+
     stockfish: {
         name: 'Stockfish 11',
         algorithm: stockfishMove
+    },
+
+    panicfish: {
+        name: 'Panicfish',
+        algorithm: panicfishMove
     },
 
     stockfishRandom: {
