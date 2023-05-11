@@ -14,9 +14,5 @@ export function blackMove(algorithmVars: AlgorithmVars) {
             ? blackMoves[Math.floor(Math.random() * blackMoves.length)]
             : moves[Math.floor(Math.random() * moves.length)];
 
-    if (!move) {
-        return;
-    }
-
     makeMove(move.san, algorithmVars.chess, algorithmVars.boardAPI);
 }

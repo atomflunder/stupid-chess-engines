@@ -43,6 +43,7 @@ stockfish.addEventListener('message', updateBestMove);
 
 let evaluation = ref('0');
 let bestMove = ref('');
+let ponderMove = ref('');
 let stockfishSkillLevel = ref(20);
 let stockfishDepth = ref(10);
 let stockfishMaxError = ref(200);
@@ -87,6 +88,7 @@ function setStockfishOptions(stockfish: Worker) {
 function updateBestMove(event: MessageEvent) {
     if (event.data.includes('bestmove')) {
         bestMove.value = event.data.split(' ')[1];
+        ponderMove.value = event.data.split(' ')[3];
     }
 }
 
@@ -102,14 +104,21 @@ function simulate() {
                     chess: chess.value as Chess,
                     boardAPI: boardAPI.value,
                     bestMove: bestMove.value,
-                    eval: evaluation.value
+                    ponderMove: ponderMove.value,
+
+                    eval: evaluation.value,
+                    stockfishWorker: stockfish,
+                    depth: stockfishDepth.value
                 });
             } else if (chess.value.turn() === 'b') {
                 blackAlgorithm.value.algorithm({
                     chess: chess.value as Chess,
                     boardAPI: boardAPI.value,
                     bestMove: bestMove.value,
-                    eval: evaluation.value
+                    ponderMove: ponderMove.value,
+                    eval: evaluation.value,
+                    stockfishWorker: stockfish,
+                    depth: stockfishDepth.value
                 });
             }
 
@@ -208,10 +217,12 @@ function simulateMore() {
     const interval = setInterval(advanceTurn, 100);
 
     let bestMove = '';
+    let ponderMove = '';
 
     function updateBestMove(event: MessageEvent) {
         if (event.data.includes('bestmove')) {
             bestMove = event.data.split(' ')[1];
+            ponderMove = event.data.split(' ')[3];
         }
     }
 
@@ -229,13 +240,19 @@ function simulateMore() {
                 whiteAlgorithm.value.algorithm({
                     chess: chess,
                     boardAPI: undefined,
-                    bestMove: bestMove
+                    bestMove: bestMove,
+                    ponderMove: ponderMove,
+                    stockfishWorker: stockfishThread,
+                    depth: stockfishDepth.value
                 });
             } else {
                 blackAlgorithm.value.algorithm({
                     chess: chess,
                     boardAPI: undefined,
-                    bestMove: bestMove
+                    bestMove: bestMove,
+                    ponderMove: ponderMove,
+                    stockfishWorker: stockfishThread,
+                    depth: stockfishDepth.value
                 });
             }
         }

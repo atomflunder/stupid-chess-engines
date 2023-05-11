@@ -22,12 +22,17 @@ import { trueRandomMove } from './algorithms/trueRandom';
 import { lowscoreMove } from './algorithms/lowscore';
 import { highscoreMove } from './algorithms/highscore';
 import { gambitMove } from './algorithms/gambit';
+import { oldschoolfishMove } from './algorithms/oldschoolfish';
+import { stockfishopponentMove } from './algorithms/stockfishOpponent';
 
 export interface AlgorithmVars {
     chess: Chess;
     boardAPI?: BoardApi;
     eval?: string;
     bestMove?: string;
+    ponderMove?: string;
+    stockfishWorker?: Worker;
+    depth?: number;
 }
 
 export const allAlgorithms = {
@@ -132,9 +137,19 @@ export const allAlgorithms = {
         algorithm: stockfishMove
     },
 
+    oldschoolfish: {
+        name: 'Oldschoolfish',
+        algorithm: oldschoolfishMove
+    },
+
     panicfish: {
         name: 'Panicfish',
         algorithm: panicfishMove
+    },
+
+    stockfishOpponent: {
+        name: 'Stockfish Opponent',
+        algorithm: stockfishopponentMove
     },
 
     stockfishRandom: {
