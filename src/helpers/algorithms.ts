@@ -21,6 +21,7 @@ import { criminalMove } from './algorithms/criminal';
 import { trueRandomMove } from './algorithms/trueRandom';
 import { lowscoreMove } from './algorithms/lowscore';
 import { highscoreMove } from './algorithms/highscore';
+import { gambitMove } from './algorithms/gambit';
 
 export interface AlgorithmVars {
     chess: Chess;
@@ -79,6 +80,11 @@ export const allAlgorithms = {
     infiltration: {
         name: 'King Infiltration',
         algorithm: infiltrationMove
+    },
+
+    gambit: {
+        name: 'Gambit',
+        algorithm: gambitMove
     },
 
     longest: {
