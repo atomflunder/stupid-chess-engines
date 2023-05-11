@@ -19,6 +19,8 @@ import { panicfishMove } from './algorithms/panicfish';
 import { lawyerMove } from './algorithms/lawyer';
 import { criminalMove } from './algorithms/criminal';
 import { trueRandomMove } from './algorithms/trueRandom';
+import { lowscoreMove } from './algorithms/lowscore';
+import { highscoreMove } from './algorithms/highscore';
 
 export interface AlgorithmVars {
     chess: Chess;
@@ -107,6 +109,16 @@ export const allAlgorithms = {
     criminal: {
         name: 'Criminal',
         algorithm: criminalMove
+    },
+
+    highScore: {
+        name: 'High Score',
+        algorithm: highscoreMove
+    },
+
+    lowScore: {
+        name: 'Low Score',
+        algorithm: lowscoreMove
     },
 
     stockfish: {
