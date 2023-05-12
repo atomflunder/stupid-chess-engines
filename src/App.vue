@@ -8,7 +8,7 @@ import 'vue3-chessboard/style.css';
 
 import { Chess, type Move } from 'chess.js';
 import { calculateElo } from './helpers/elo';
-import { allAlgorithms } from './helpers/algorithms';
+import { allAlgorithms, type StockfishOptions } from './helpers/algorithms';
 import { Outcome } from './helpers/outcomes';
 
 const boardAPI = ref<BoardApi>();
@@ -44,13 +44,15 @@ stockfish.addEventListener('message', updateBestMove);
 let evaluation = ref('0');
 let bestMove = ref('');
 let ponderMove = ref('');
-let stockfishSkillLevel = ref(20);
-let stockfishDepth = ref(10);
-let stockfishMaxError = ref(200);
-let stockfishProbability = ref(128);
+let stockfishOptions = ref({
+    level: 20,
+    depth: 10,
+    maxError: 200,
+    probability: 128
+});
 
 function updateEval(event: MessageEvent) {
-    if (event.data.includes(`depth ${stockfishDepth.value}`)) {
+    if (event.data.includes(`depth ${stockfishOptions.value.depth}`)) {
         const ev = Number(event.data.split(' ')[9]);
 
         if (event.data.includes('score cp')) {
@@ -76,12 +78,12 @@ function updateEval(event: MessageEvent) {
 }
 
 function setStockfishOptions(stockfish: Worker) {
-    stockfish.postMessage(`setoption name Skill Level value ${stockfishSkillLevel.value}`);
+    stockfish.postMessage(`setoption name Skill Level value ${stockfishOptions.value.level}`);
     stockfish.postMessage(
-        `setoption name Skill Level Maximum Error value ${stockfishMaxError.value}`
+        `setoption name Skill Level Maximum Error value ${stockfishOptions.value.maxError}`
     );
     stockfish.postMessage(
-        `setoption name Skill Level Probability value ${stockfishProbability.value}`
+        `setoption name Skill Level Probability value ${stockfishOptions.value.probability}`
     );
 }
 
@@ -97,7 +99,7 @@ function simulate() {
         if (!stopForeground.value) {
             stockfish.postMessage(`position fen ${chess.value.fen()}`);
             setStockfishOptions(stockfish);
-            stockfish.postMessage(`go depth ${stockfishDepth.value}`);
+            stockfish.postMessage(`go depth ${stockfishOptions.value.depth}`);
 
             if (chess.value.turn() === 'w') {
                 whiteAlgorithm.value.algorithm({
@@ -105,10 +107,9 @@ function simulate() {
                     boardAPI: boardAPI.value,
                     bestMove: bestMove.value,
                     ponderMove: ponderMove.value,
-
                     eval: evaluation.value,
                     stockfishWorker: stockfish,
-                    depth: stockfishDepth.value
+                    stockfishOptions: stockfishOptions.value as StockfishOptions
                 });
             } else if (chess.value.turn() === 'b') {
                 blackAlgorithm.value.algorithm({
@@ -118,7 +119,7 @@ function simulate() {
                     ponderMove: ponderMove.value,
                     eval: evaluation.value,
                     stockfishWorker: stockfish,
-                    depth: stockfishDepth.value
+                    stockfishOptions: stockfishOptions.value as StockfishOptions
                 });
             }
 
@@ -156,7 +157,7 @@ function parseMove(move: Move) {
 
         stockfish.postMessage(`position fen ${chess.value.fen()}`);
         setStockfishOptions(stockfish);
-        stockfish.postMessage(`go depth ${stockfishDepth.value}`);
+        stockfish.postMessage(`go depth ${stockfishOptions.value.depth}`);
 
         updateHistory();
     } else if (move.color === 'b' && blackAlgorithm.value.name === allAlgorithms.none.name) {
@@ -164,7 +165,7 @@ function parseMove(move: Move) {
 
         stockfish.postMessage(`position fen ${chess.value.fen()}`);
         setStockfishOptions(stockfish);
-        stockfish.postMessage(`go depth ${stockfishDepth.value}`);
+        stockfish.postMessage(`go depth ${stockfishOptions.value.depth}`);
 
         updateHistory();
     }
@@ -230,7 +231,7 @@ function simulateMore() {
 
     function advanceTurn() {
         stockfishThread.postMessage(`position fen ${chess.fen()}`);
-        stockfishThread.postMessage(`go depth ${stockfishDepth.value}`);
+        stockfishThread.postMessage(`go depth ${stockfishOptions.value.depth}`);
 
         if (chess.isGameOver()) {
             handleGameOver(chess);
@@ -243,7 +244,7 @@ function simulateMore() {
                     bestMove: bestMove,
                     ponderMove: ponderMove,
                     stockfishWorker: stockfishThread,
-                    depth: stockfishDepth.value
+                    stockfishOptions: stockfishOptions.value as StockfishOptions
                 });
             } else {
                 blackAlgorithm.value.algorithm({
@@ -252,7 +253,7 @@ function simulateMore() {
                     bestMove: bestMove,
                     ponderMove: ponderMove,
                     stockfishWorker: stockfishThread,
-                    depth: stockfishDepth.value
+                    stockfishOptions: stockfishOptions.value as StockfishOptions
                 });
             }
         }
@@ -262,7 +263,7 @@ function simulateMore() {
 onBeforeMount(() => {
     stockfish.postMessage(`position fen ${chess.value.fen()}`);
     setStockfishOptions(stockfish);
-    stockfish.postMessage(`go depth ${stockfishDepth.value}`);
+    stockfish.postMessage(`go depth ${stockfishOptions.value.depth}`);
 
     setInterval(simulateMore, 100);
     simulate();
@@ -335,9 +336,9 @@ onBeforeMount(() => {
                 type="range"
                 min="0"
                 max="20"
-                v-model="stockfishSkillLevel"
+                v-model="stockfishOptions.level"
             />
-            <div style="grid-row: 2">LEVEL: {{ stockfishSkillLevel }}</div>
+            <div style="grid-row: 2">LEVEL: {{ stockfishOptions.level }}</div>
 
             <input
                 class="slider"
@@ -345,9 +346,9 @@ onBeforeMount(() => {
                 type="range"
                 min="1"
                 max="20"
-                v-model="stockfishDepth"
+                v-model="stockfishOptions.depth"
             />
-            <div style="grid-row: 3">DEPTH: {{ stockfishDepth }}</div>
+            <div style="grid-row: 3">DEPTH: {{ stockfishOptions.depth }}</div>
 
             <input
                 class="slider"
@@ -355,9 +356,9 @@ onBeforeMount(() => {
                 type="range"
                 min="0"
                 max="5000"
-                v-model="stockfishMaxError"
+                v-model="stockfishOptions.maxError"
             />
-            <div style="grid-row: 4">MAX ERROR: {{ stockfishMaxError }}</div>
+            <div style="grid-row: 4">MAX ERROR: {{ stockfishOptions.maxError }}</div>
 
             <input
                 class="slider"
@@ -365,9 +366,9 @@ onBeforeMount(() => {
                 type="range"
                 min="1"
                 max="1000"
-                v-model="stockfishProbability"
+                v-model="stockfishOptions.probability"
             />
-            <div style="grid-row: 5">PROBABILITY: {{ stockfishProbability }}</div>
+            <div style="grid-row: 5">PROBABILITY: {{ stockfishOptions.probability }}</div>
         </div>
     </div>
 

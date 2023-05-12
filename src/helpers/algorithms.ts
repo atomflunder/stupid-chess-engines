@@ -22,7 +22,6 @@ import { trueRandomMove } from './algorithms/trueRandom';
 import { lowscoreMove } from './algorithms/lowscore';
 import { highscoreMove } from './algorithms/highscore';
 import { gambitMove } from './algorithms/gambit';
-import { oldschoolfishMove } from './algorithms/oldschoolfish';
 import { stockfishopponentMove } from './algorithms/stockfishOpponent';
 
 export interface AlgorithmVars {
@@ -32,7 +31,14 @@ export interface AlgorithmVars {
     bestMove?: string;
     ponderMove?: string;
     stockfishWorker?: Worker;
-    depth?: number;
+    stockfishOptions?: StockfishOptions;
+}
+
+export interface StockfishOptions {
+    level: number;
+    depth: number;
+    maxError: number;
+    probability: number;
 }
 
 export const allAlgorithms = {
@@ -135,11 +141,6 @@ export const allAlgorithms = {
     stockfish: {
         name: 'Stockfish 11',
         algorithm: stockfishMove
-    },
-
-    oldschoolfish: {
-        name: 'Oldschoolfish',
-        algorithm: oldschoolfishMove
     },
 
     panicfish: {

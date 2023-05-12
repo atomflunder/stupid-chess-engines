@@ -11,7 +11,7 @@ export function stockfishopponentMove(algorithmVars: AlgorithmVars) {
     modifiedFen[1] = algorithmVars.chess.turn() === 'w' ? 'b' : 'w';
 
     algorithmVars.stockfishWorker?.postMessage(`position fen ${modifiedFen.join(' ')}`);
-    algorithmVars.stockfishWorker?.postMessage(`go depth ${algorithmVars.depth}`);
+    algorithmVars.stockfishWorker?.postMessage(`go depth ${algorithmVars.stockfishOptions?.depth}`);
 
     // If there is a M1 threat, stockfish will leave the move as undefined.
 
