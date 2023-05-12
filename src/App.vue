@@ -48,7 +48,8 @@ let stockfishOptions = ref({
     level: 20,
     depth: 10,
     maxError: 200,
-    probability: 128
+    probability: 128,
+    fen: chess.value.fen()
 });
 
 function updateEval(event: MessageEvent) {
@@ -97,7 +98,7 @@ function updateBestMove(event: MessageEvent) {
 function simulate() {
     function turn() {
         if (!stopForeground.value) {
-            stockfish.postMessage(`position fen ${chess.value.fen()}`);
+            stockfish.postMessage(`position fen ${stockfishOptions.value.fen}`);
             setStockfishOptions(stockfish);
             stockfish.postMessage(`go depth ${stockfishOptions.value.depth}`);
 
@@ -125,6 +126,8 @@ function simulate() {
 
             updateHistory();
         }
+
+        stockfishOptions.value.fen = chess.value.fen();
 
         if (chess.value.isGameOver()) {
             setTimeout(() => {
@@ -155,7 +158,7 @@ function parseMove(move: Move) {
     if (move.color === 'w' && whiteAlgorithm.value.name === allAlgorithms.none.name) {
         chess.value.move(move.san);
 
-        stockfish.postMessage(`position fen ${chess.value.fen()}`);
+        stockfish.postMessage(`position fen ${stockfishOptions.value.fen}`);
         setStockfishOptions(stockfish);
         stockfish.postMessage(`go depth ${stockfishOptions.value.depth}`);
 
@@ -163,7 +166,7 @@ function parseMove(move: Move) {
     } else if (move.color === 'b' && blackAlgorithm.value.name === allAlgorithms.none.name) {
         chess.value.move(move.san);
 
-        stockfish.postMessage(`position fen ${chess.value.fen()}`);
+        stockfish.postMessage(`position fen ${stockfishOptions.value.fen}`);
         setStockfishOptions(stockfish);
         stockfish.postMessage(`go depth ${stockfishOptions.value.depth}`);
 
@@ -213,7 +216,6 @@ function simulateMore() {
 
     const stockfishThread = new Worker('./src/stockfish/src/stockfish.js');
     stockfishThread.postMessage('ucinewgame');
-    setStockfishOptions(stockfish);
 
     const interval = setInterval(advanceTurn, 100);
 
@@ -227,11 +229,27 @@ function simulateMore() {
         }
     }
 
+    let stockfishOptions = {
+        level: 20,
+        depth: 10,
+        maxError: 200,
+        probability: 128,
+        fen: chess.fen()
+    };
+
+    stockfishThread.postMessage(`setoption name Skill Level value ${stockfishOptions.level}`);
+    stockfishThread.postMessage(
+        `setoption name Skill Level Maximum Error value ${stockfishOptions.maxError}`
+    );
+    stockfishThread.postMessage(
+        `setoption name Skill Level Probability value ${stockfishOptions.probability}`
+    );
+
     stockfishThread.addEventListener('message', updateBestMove);
 
     function advanceTurn() {
-        stockfishThread.postMessage(`position fen ${chess.fen()}`);
-        stockfishThread.postMessage(`go depth ${stockfishOptions.value.depth}`);
+        stockfishThread.postMessage(`position fen ${stockfishOptions.fen}`);
+        stockfishThread.postMessage(`go depth ${stockfishOptions.depth}`);
 
         if (chess.isGameOver()) {
             handleGameOver(chess);
@@ -244,7 +262,7 @@ function simulateMore() {
                     bestMove: bestMove,
                     ponderMove: ponderMove,
                     stockfishWorker: stockfishThread,
-                    stockfishOptions: stockfishOptions.value as StockfishOptions
+                    stockfishOptions: stockfishOptions as StockfishOptions
                 });
             } else {
                 blackAlgorithm.value.algorithm({
@@ -253,15 +271,17 @@ function simulateMore() {
                     bestMove: bestMove,
                     ponderMove: ponderMove,
                     stockfishWorker: stockfishThread,
-                    stockfishOptions: stockfishOptions.value as StockfishOptions
+                    stockfishOptions: stockfishOptions as StockfishOptions
                 });
             }
         }
+
+        stockfishOptions.fen = chess.fen();
     }
 }
 
 onBeforeMount(() => {
-    stockfish.postMessage(`position fen ${chess.value.fen()}`);
+    stockfish.postMessage(`position fen ${stockfishOptions.value.fen}`);
     setStockfishOptions(stockfish);
     stockfish.postMessage(`go depth ${stockfishOptions.value.depth}`);
 

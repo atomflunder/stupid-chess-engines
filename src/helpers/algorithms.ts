@@ -39,6 +39,7 @@ export interface StockfishOptions {
     depth: number;
     maxError: number;
     probability: number;
+    fen: string;
 }
 
 export const allAlgorithms = {
