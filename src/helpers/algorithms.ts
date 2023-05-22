@@ -23,6 +23,7 @@ import { lowscoreMove } from './algorithms/lowscore';
 import { highscoreMove } from './algorithms/highscore';
 import { gambitMove } from './algorithms/gambit';
 import { stockfishopponentMove } from './algorithms/stockfishOpponent';
+import type { StockfishOptions } from './options';
 
 export interface AlgorithmVars {
     chess: Chess;
@@ -32,14 +33,6 @@ export interface AlgorithmVars {
     ponderMove?: string;
     stockfishWorker?: Worker;
     stockfishOptions?: StockfishOptions;
-}
-
-export interface StockfishOptions {
-    level: number;
-    depth: number;
-    maxError: number;
-    probability: number;
-    fen: string;
 }
 
 export const allAlgorithms = {

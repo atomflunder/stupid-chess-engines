@@ -1,15 +1,29 @@
 <script setup lang="ts">
 import { onBeforeMount, ref } from 'vue';
 
-import { TheChessboard, BoardApi } from 'vue3-chessboard';
 import type { BoardConfig } from 'vue3-chessboard';
+import { BoardApi, TheChessboard } from 'vue3-chessboard';
 
 import 'vue3-chessboard/style.css';
 
 import { Chess, type Move } from 'chess.js';
+import { allAlgorithms } from './helpers/algorithms';
 import { calculateElo } from './helpers/elo';
-import { allAlgorithms, type StockfishOptions } from './helpers/algorithms';
+import {
+    changeStockfishDepth,
+    changeStockfishLevel,
+    changeStockfishMaxError,
+    changeStockfishProbability,
+    type StockfishOptions
+} from './helpers/options';
 import { Outcome } from './helpers/outcomes';
+
+import BoardButtons from './components/BoardButtons.vue';
+import BoardEval from './components/BoardEval.vue';
+import GameButtons from './components/GameButtons.vue';
+import MoveHistory from './components/MoveHistory.vue';
+import PlayerBox from './components/PlayerBox.vue';
+import StockfishSettings from './components/StockfishSettings.vue';
 
 const boardAPI = ref<BoardApi>();
 
@@ -86,6 +100,14 @@ function setStockfishOptions(stockfish: Worker) {
     stockfish.postMessage(
         `setoption name Skill Level Probability value ${stockfishOptions.value.probability}`
     );
+}
+
+function changeAlgorithm(colour: string, algorithm: any) {
+    if (colour === 'white') {
+        whiteAlgorithm.value = algorithm;
+    } else {
+        blackAlgorithm.value = algorithm;
+    }
 }
 
 function updateBestMove(event: MessageEvent) {
@@ -291,150 +313,67 @@ onBeforeMount(() => {
 </script>
 
 <template>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+        rel="stylesheet"
+    />
+
     <div class="sidebar-left">
         <div class="boxes">
-            <div class="white-box">
-                <button class="button" @click="gamesStarted = 10">SIMULATE 10 GAMES</button>
+            <GameButtons
+                @simulate-games="gamesStarted = 10"
+                @toggle-game="stopForeground = !stopForeground"
+                :stop-foreground="stopForeground"
+            />
 
-                <img
-                    src="@/assets/knight-white.svg"
-                    title="White"
-                    alt="pawn-icon"
-                    width="32"
-                    height="32"
-                    class="black-outline"
-                />
-                ELO: {{ Math.floor(whiteElo) }} (W{{ outcomes[0] }} - D{{ outcomes[2] }} - L{{
-                    outcomes[1]
-                }})
-                <select class="select" name="White Algorithm" id="white" v-model="whiteAlgorithm">
-                    <option v-for="(algo, i) in allAlgorithms" :key="i" :value="algo">
-                        {{ algo.name }}
-                    </option>
-                </select>
-            </div>
+            <PlayerBox
+                colour="white"
+                :elo="whiteElo"
+                :wins="outcomes[0]"
+                :draws="outcomes[1]"
+                :losses="outcomes[2]"
+                @change-algorithm="changeAlgorithm"
+            />
 
-            <div class="black-box">
-                <button class="button" @click="stopForeground = !stopForeground">
-                    TOGGLE SHOWN GAME
-                </button>
-
-                <img
-                    src="@/assets/knight-black.svg"
-                    title="Black"
-                    alt="pawn-icon"
-                    width="32"
-                    height="32"
-                    class="white-outline"
-                />
-                ELO: {{ Math.floor(blackElo) }} (W{{ outcomes[1] }} - D{{ outcomes[2] }} - L{{
-                    outcomes[0]
-                }})
-                <select class="select" name="Black Algorithm" id="black" v-model="blackAlgorithm">
-                    <option v-for="(algo, i) in allAlgorithms" :key="i" :value="algo">
-                        {{ algo.name }}
-                    </option>
-                </select>
-            </div>
+            <PlayerBox
+                colour="black"
+                :elo="blackElo"
+                :wins="outcomes[2]"
+                :draws="outcomes[1]"
+                :losses="outcomes[0]"
+                @change-algorithm="changeAlgorithm"
+            />
         </div>
 
-        <div class="stockfish">
-            <img
-                src="@/assets/settings.svg"
-                title="Stockfish Settings"
-                alt="pawn-icon"
-                width="32"
-                height="32"
-                class="black-outline"
-                style="grid-row: 1"
-            />
-            <div style="grid-row: 1">STOCKFISH SETTINGS</div>
-
-            <input
-                class="slider"
-                style="grid-row: 2"
-                type="range"
-                min="0"
-                max="20"
-                v-model="stockfishOptions.level"
-            />
-            <div style="grid-row: 2">LEVEL: {{ stockfishOptions.level }}</div>
-
-            <input
-                class="slider"
-                style="grid-row: 3"
-                type="range"
-                min="1"
-                max="20"
-                v-model="stockfishOptions.depth"
-            />
-            <div style="grid-row: 3">DEPTH: {{ stockfishOptions.depth }}</div>
-
-            <input
-                class="slider"
-                style="grid-row: 4"
-                type="range"
-                min="0"
-                max="5000"
-                v-model="stockfishOptions.maxError"
-            />
-            <div style="grid-row: 4">MAX ERROR: {{ stockfishOptions.maxError }}</div>
-
-            <input
-                class="slider"
-                style="grid-row: 5"
-                type="range"
-                min="1"
-                max="1000"
-                v-model="stockfishOptions.probability"
-            />
-            <div style="grid-row: 5">PROBABILITY: {{ stockfishOptions.probability }}</div>
-        </div>
+        <StockfishSettings
+            :stockfish-options="stockfishOptions"
+            @change-depth="changeStockfishDepth"
+            @change-level="changeStockfishLevel"
+            @change-max-error="changeStockfishMaxError"
+            @change-probability="changeStockfishProbability"
+        />
     </div>
 
     <div class="center">
-        <div>
-            <img
-                src="@/assets/pawn.svg"
-                alt="pawn-icon"
-                width="16"
-                height="16"
-                title="Material Difference"
-            />
-            {{ boardAPI?.getMaterialCount().materialDiff }}
-            <img
-                src="@/assets/eval.svg"
-                alt="eval-icon"
-                width="16"
-                height="16"
-                title="Stockfish Evaluation"
-            />
-            {{ evaluation }}
-            <img
-                src="@/assets/move.svg"
-                alt="move-icon"
-                width="16"
-                height="16"
-                title="Stockfish Best Move"
-            />
-            {{ bestMove }}
-        </div>
+        <BoardEval
+            :material-diff="boardAPI?.getMaterialCount().materialDiff || 0"
+            :evaluation="evaluation"
+            :best-move="bestMove"
+        />
 
         <TheChessboard
             :board-config="boardConfig"
             @board-created="createBoard"
             @move="(move) => parseMove(move)"
         ></TheChessboard>
-        <button class="button" style="margin-right: 2px" @click="boardAPI?.toggleOrientation()">
-            TOGGLE ORIENTATION
-        </button>
-        <button class="button" style="margin-left: 2px" @click="boardAPI?.toggleMoves()">
-            TOGGLE MOVES
-        </button>
+        <BoardButtons
+            @toggle-moves="boardAPI?.toggleMoves()"
+            @toggle-orientation="boardAPI?.toggleOrientation()"
+        />
     </div>
 
     <div class="sidebar-right">
-        <p style="white-space: pre-line">{{ history }}</p>
+        <MoveHistory :history="history" />
     </div>
 </template>
 
@@ -448,6 +387,18 @@ onBeforeMount(() => {
     left: 0;
     overflow-x: hidden;
     padding-top: 20px;
+}
+
+.center {
+    justify-content: center;
+    text-align: center;
+    padding: 16px;
+}
+
+.boxes {
+    display: grid;
+    grid-template-columns: 190px 190px;
+    gap: 20px;
 }
 
 .sidebar-right {
@@ -465,74 +416,5 @@ onBeforeMount(() => {
     .sidebar-right {
         display: none;
     }
-}
-
-.center {
-    justify-content: center;
-    text-align: center;
-    padding: 16px;
-}
-
-.boxes {
-    display: grid;
-    grid-template-columns: 190px 190px;
-    gap: 20px;
-}
-
-.white-box {
-    display: grid;
-}
-
-.black-box {
-    display: grid;
-}
-
-.stockfish {
-    display: grid;
-    margin-top: 100px;
-    grid-template-columns: 245px 150px;
-    gap: 5px;
-}
-
-.button {
-    background-color: #333;
-    border: 2px;
-    color: #fff;
-    padding: 10px;
-    font-size: 16px;
-    cursor: pointer;
-    margin-top: 20px;
-    margin-bottom: 20px;
-}
-
-.button:hover {
-    background-color: #444;
-}
-
-.select {
-    background-color: #333;
-    border: 2px;
-    color: #fff;
-    padding: 10px;
-    font-size: 14px;
-    cursor: pointer;
-}
-
-.select:hover {
-    background-color: #444;
-}
-
-.slider {
-    accent-color: #444;
-}
-
-.white-outline {
-    filter: drop-shadow(-1px -1px 0px #fff) drop-shadow(1px -1px 0px #fff)
-        drop-shadow(1px 1px 0px #fff) drop-shadow(-1px 1px 0px #fff);
-}
-
-.black-outline {
-    filter: drop-shadow(-1px -1px 0px #000) drop-shadow(1px -1px 0px #000)
-        drop-shadow(1px 1px 0px #000) drop-shadow(-1px 1px 0px #000);
 }
 </style>
