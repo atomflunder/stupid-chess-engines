@@ -174,6 +174,10 @@ function updateHistory() {
         maxWidth: 1,
         newline: '\n'
     });
+
+    // Automatically scrolls to the bottom of the move list.
+    const element = document.getElementById('sidebar-right');
+    element!.scrollTop = element!.scrollHeight;
 }
 
 function parseMove(move: Move) {
@@ -372,8 +376,12 @@ onBeforeMount(() => {
         />
     </div>
 
-    <div class="sidebar-right">
-        <MoveHistory :history="history" />
+    <div class="sidebar-right" id="sidebar-right">
+        <MoveHistory
+            :history="history"
+            :white-algorithm-name="whiteAlgorithm.name"
+            :black-algorithm-name="blackAlgorithm.name"
+        />
     </div>
 </template>
 
@@ -385,7 +393,6 @@ onBeforeMount(() => {
     z-index: 1;
     top: 0;
     left: 0;
-    overflow-x: hidden;
     padding-top: 20px;
 }
 
@@ -402,14 +409,17 @@ onBeforeMount(() => {
 }
 
 .sidebar-right {
-    height: 100%;
+    height: 75%;
     width: 400px;
     position: fixed;
-    z-index: 1;
     top: 0;
     right: 0;
     overflow-x: hidden;
+    overflow-y: scroll;
     padding-top: 20px;
+    margin: 30px;
+    background-color: #000;
+    border: solid 2px #333;
 }
 
 @media (max-width: 1700px) {
