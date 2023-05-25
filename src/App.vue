@@ -328,6 +328,8 @@ onBeforeMount(() => {
                 @simulate-games="gamesStarted = 10"
                 @toggle-game="stopForeground = !stopForeground"
                 :stop-foreground="stopForeground"
+                :white-algorithm-name="whiteAlgorithm.name"
+                :black-algorithm-name="blackAlgorithm.name"
             />
 
             <PlayerBox
@@ -387,19 +389,24 @@ onBeforeMount(() => {
 
 <style scoped>
 .sidebar-left {
-    height: 100%;
+    height: 80%;
     width: 400px;
     position: fixed;
-    z-index: 1;
     top: 0;
     left: 0;
+    padding-left: 20px;
+    padding-right: 20px;
     padding-top: 20px;
+    margin: 30px;
+    background-color: #000;
+    border: solid 2px #333;
 }
 
 .center {
     justify-content: center;
     text-align: center;
     padding: 16px;
+    height: 80%;
 }
 
 .boxes {
@@ -409,7 +416,7 @@ onBeforeMount(() => {
 }
 
 .sidebar-right {
-    height: 75%;
+    height: 80%;
     width: 400px;
     position: fixed;
     top: 0;

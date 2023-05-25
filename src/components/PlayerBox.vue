@@ -8,7 +8,8 @@
             height="32"
             :class="`${colour}-outline`"
         />
-        ELO: {{ Math.floor(elo) }} (W{{ wins }} - D{{ draws }} - L{{ losses }})
+        <div>ELO: {{ Math.floor(elo) }}</div>
+        <div>W{{ wins }} - D{{ draws }} - L{{ losses }}</div>
         <select
             class="select"
             :name="`${colour.charAt(0).toUpperCase() + colour.slice(1)} Algorithm`"

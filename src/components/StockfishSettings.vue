@@ -1,47 +1,49 @@
 <template>
     <div class="stockfish">
-        <img
-            src="@/assets/settings.svg"
-            title="Stockfish Settings"
-            alt="pawn-icon"
-            width="32"
-            height="32"
-            class="black-outline"
-            style="grid-row: 1"
-        />
-        <div style="grid-row: 1">STOCKFISH SETTINGS</div>
+        <div style="grid-row: 1">
+            <img
+                src="@/assets/settings.svg"
+                title="Stockfish Settings"
+                alt="settings-icon"
+                width="20"
+                height="20"
+                class="black-outline"
+            />
+            STOCKFISH SETTINGS
+        </div>
 
+        <div style="grid-row: 2">LEVEL: {{ stockfishOptions.level }}</div>
         <input
             class="slider"
             style="grid-row: 2"
             type="range"
             min="0"
             max="20"
-            @change="
+            @input="
                 $emit('change-level', stockfishOptions, ($event.target as HTMLInputElement).value)
             "
         />
-        <div style="grid-row: 2">LEVEL: {{ stockfishOptions.level }}</div>
 
+        <div style="grid-row: 3">DEPTH: {{ stockfishOptions.depth }}</div>
         <input
             class="slider"
             style="grid-row: 3"
             type="range"
             min="1"
             max="20"
-            @change="
+            @input="
                 $emit('change-depth', stockfishOptions, ($event.target as HTMLInputElement).value)
             "
         />
-        <div style="grid-row: 3">DEPTH: {{ stockfishOptions.depth }}</div>
 
+        <div style="grid-row: 4">MAX ERROR: {{ stockfishOptions.maxError }}</div>
         <input
             class="slider"
             style="grid-row: 4"
             type="range"
             min="0"
             max="5000"
-            @change="
+            @input="
                 $emit(
                     'change-max-error',
                     stockfishOptions,
@@ -49,15 +51,15 @@
                 )
             "
         />
-        <div style="grid-row: 4">MAX ERROR: {{ stockfishOptions.maxError }}</div>
 
+        <div style="grid-row: 5">PROBABILITY: {{ stockfishOptions.probability }}</div>
         <input
             class="slider"
             style="grid-row: 5"
             type="range"
             min="1"
             max="1000"
-            @change="
+            @input="
                 $emit(
                     'change-probability',
                     stockfishOptions,
@@ -65,7 +67,6 @@
                 )
             "
         />
-        <div style="grid-row: 5">PROBABILITY: {{ stockfishOptions.probability }}</div>
     </div>
 </template>
 
@@ -83,7 +84,7 @@ defineEmits(['change-level', 'change-depth', 'change-max-error', 'change-probabi
 .stockfish {
     display: grid;
     margin-top: 100px;
-    grid-template-columns: 245px 150px;
+    grid-template-columns: 180px 220px;
     gap: 5px;
 }
 
