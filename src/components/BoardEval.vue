@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="eval">
         <img
             src="@/assets/pawn.svg"
             alt="pawn-icon"
@@ -35,4 +35,9 @@ defineProps<{
 }>();
 </script>
 
-<style scoped></style>
+<style scoped>
+.eval {
+    justify-content: center;
+    text-align: center;
+}
+</style>

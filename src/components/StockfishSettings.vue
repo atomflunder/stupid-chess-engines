@@ -86,6 +86,8 @@ defineEmits(['change-level', 'change-depth', 'change-max-error', 'change-probabi
     margin-top: 100px;
     grid-template-columns: 180px 220px;
     gap: 5px;
+    justify-content: center;
+    text-align: center;
 }
 
 .slider {

@@ -48,6 +48,8 @@ defineProps<{
     margin-left: 20px;
     margin-top: 4px;
     grid-template-columns: 50px 150px 150px;
+    justify-content: center;
+    text-align: center;
 }
 
 .move-number {

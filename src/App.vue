@@ -322,116 +322,163 @@ onBeforeMount(() => {
         rel="stylesheet"
     />
 
-    <div class="sidebar-left">
-        <div class="boxes">
-            <GameButtons
-                @simulate-games="gamesStarted = 10"
-                @toggle-game="stopForeground = !stopForeground"
-                :stop-foreground="stopForeground"
-                :white-algorithm-name="whiteAlgorithm.name"
-                :black-algorithm-name="blackAlgorithm.name"
-            />
+    <div class="container">
+        <div class="sidebar-left">
+            <div class="boxes">
+                <GameButtons
+                    @simulate-games="gamesStarted = 10"
+                    @toggle-game="stopForeground = !stopForeground"
+                    :stop-foreground="stopForeground"
+                    :white-algorithm-name="whiteAlgorithm.name"
+                    :black-algorithm-name="blackAlgorithm.name"
+                />
 
-            <PlayerBox
-                colour="white"
-                :elo="whiteElo"
-                :wins="outcomes[0]"
-                :draws="outcomes[1]"
-                :losses="outcomes[2]"
-                @change-algorithm="changeAlgorithm"
-            />
+                <PlayerBox
+                    colour="white"
+                    :elo="whiteElo"
+                    :wins="outcomes[0]"
+                    :draws="outcomes[1]"
+                    :losses="outcomes[2]"
+                    @change-algorithm="changeAlgorithm"
+                />
 
-            <PlayerBox
-                colour="black"
-                :elo="blackElo"
-                :wins="outcomes[2]"
-                :draws="outcomes[1]"
-                :losses="outcomes[0]"
-                @change-algorithm="changeAlgorithm"
+                <PlayerBox
+                    colour="black"
+                    :elo="blackElo"
+                    :wins="outcomes[2]"
+                    :draws="outcomes[1]"
+                    :losses="outcomes[0]"
+                    @change-algorithm="changeAlgorithm"
+                />
+            </div>
+
+            <StockfishSettings
+                :stockfish-options="stockfishOptions"
+                @change-depth="changeStockfishDepth"
+                @change-level="changeStockfishLevel"
+                @change-max-error="changeStockfishMaxError"
+                @change-probability="changeStockfishProbability"
             />
         </div>
 
-        <StockfishSettings
-            :stockfish-options="stockfishOptions"
-            @change-depth="changeStockfishDepth"
-            @change-level="changeStockfishLevel"
-            @change-max-error="changeStockfishMaxError"
-            @change-probability="changeStockfishProbability"
-        />
-    </div>
+        <div class="sidebar-right" id="sidebar-right">
+            <MoveHistory
+                :history="history"
+                :white-algorithm-name="whiteAlgorithm.name"
+                :black-algorithm-name="blackAlgorithm.name"
+            />
+        </div>
 
-    <div class="center">
-        <BoardEval
-            :material-diff="boardAPI?.getMaterialCount().materialDiff || 0"
-            :evaluation="evaluation"
-            :best-move="bestMove"
-        />
+        <div class="center">
+            <BoardEval
+                :material-diff="boardAPI?.getMaterialCount().materialDiff || 0"
+                :evaluation="evaluation"
+                :best-move="bestMove"
+            />
 
-        <TheChessboard
-            :board-config="boardConfig"
-            @board-created="createBoard"
-            @move="(move) => parseMove(move)"
-        ></TheChessboard>
-        <BoardButtons
-            @toggle-moves="boardAPI?.toggleMoves()"
-            @toggle-orientation="boardAPI?.toggleOrientation()"
-        />
-    </div>
-
-    <div class="sidebar-right" id="sidebar-right">
-        <MoveHistory
-            :history="history"
-            :white-algorithm-name="whiteAlgorithm.name"
-            :black-algorithm-name="blackAlgorithm.name"
-        />
+            <TheChessboard
+                :board-config="boardConfig"
+                @board-created="createBoard"
+                @move="(move: Move) => parseMove(move)"
+            ></TheChessboard>
+            <BoardButtons
+                @toggle-moves="boardAPI?.toggleMoves()"
+                @toggle-orientation="boardAPI?.toggleOrientation()"
+            />
+        </div>
     </div>
 </template>
 
 <style scoped>
-.sidebar-left {
-    height: 80%;
-    width: 400px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    padding-left: 20px;
-    padding-right: 20px;
-    padding-top: 20px;
-    margin: 30px;
+.container {
+    display: grid;
+    grid-template-columns: 450px 800px 350px;
+    gap: 2px;
+    justify-content: center;
+    text-align: center;
+}
+
+.sidebar-left,
+.sidebar-right {
     background-color: #000;
     border: solid 2px #333;
+    border-radius: 20px;
+    justify-content: center;
+    text-align: center;
+    max-height: 600px;
+}
+
+.sidebar-left {
+    grid-column: 1;
+    grid-row: 1;
 }
 
 .center {
     justify-content: center;
     text-align: center;
-    padding: 16px;
-    height: 80%;
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.sidebar-right {
+    overflow-x: hidden;
+    overflow-y: scroll;
+    grid-column: 3;
+    grid-row: 1;
 }
 
 .boxes {
     display: grid;
     grid-template-columns: 190px 190px;
     gap: 20px;
+    justify-content: center;
+    text-align: center;
 }
 
-.sidebar-right {
-    height: 80%;
-    width: 400px;
-    position: fixed;
-    top: 0;
-    right: 0;
-    overflow-x: hidden;
-    overflow-y: scroll;
-    padding-top: 20px;
-    margin: 30px;
-    background-color: #000;
-    border: solid 2px #333;
-}
+@media (max-width: 1650px) {
+    .container {
+        grid-template-columns: 450px 350px;
+        grid-template-rows: 600px;
+    }
 
-@media (max-width: 1700px) {
+    .sidebar-left {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
     .sidebar-right {
-        display: none;
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .center {
+        grid-row: 2;
+        grid-column-start: 1;
+        grid-column-end: 3;
+    }
+}
+
+@media (max-width: 850px) {
+    .container {
+        grid-template-columns: 400px;
+    }
+
+    .sidebar-left {
+        grid-row: 1;
+        grid-column-start: 1;
+        grid-column-end: 3;
+    }
+
+    .sidebar-right {
+        grid-row: 3;
+        grid-column-start: 1;
+        grid-column-end: 3;
+    }
+
+    .center {
+        grid-row: 2;
+        grid-column-start: 1;
+        grid-column-end: 3;
     }
 }
 </style>

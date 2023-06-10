@@ -21,6 +21,8 @@ defineEmits(['toggle-orientation', 'toggle-moves']);
     cursor: pointer;
     margin-top: 20px;
     margin-bottom: 20px;
+    justify-content: center;
+    text-align: center;
 }
 
 .button:hover {
