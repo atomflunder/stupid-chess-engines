@@ -70,6 +70,9 @@ function updateEval(event: MessageEvent) {
     if (event.data.includes(`depth ${stockfishOptions.value.depth}`)) {
         const ev = Number(event.data.split(' ')[9]);
 
+        console.log(event.data);
+
+        // TODO: Fix
         if (event.data.includes('score cp')) {
             if (chess.value.turn() === 'w') {
                 if (ev > 0) {
@@ -119,6 +122,8 @@ function updateBestMove(event: MessageEvent) {
 
 function simulate() {
     function turn() {
+        stockfishOptions.value.fen = chess.value.fen();
+
         if (!stopForeground.value) {
             stockfish.postMessage(`position fen ${stockfishOptions.value.fen}`);
             setStockfishOptions(stockfish);
@@ -148,8 +153,6 @@ function simulate() {
 
             updateHistory();
         }
-
-        stockfishOptions.value.fen = chess.value.fen();
 
         if (chess.value.isGameOver()) {
             setTimeout(() => {
@@ -181,16 +184,12 @@ function updateHistory() {
 }
 
 function parseMove(move: Move) {
-    if (move.color === 'w' && whiteAlgorithm.value.name === allAlgorithms.none.name) {
+    if (
+        (move.color === 'w' && whiteAlgorithm.value.name === allAlgorithms.none.name) ||
+        (move.color === 'b' && blackAlgorithm.value.name === allAlgorithms.none.name)
+    ) {
         chess.value.move(move.san);
-
-        stockfish.postMessage(`position fen ${stockfishOptions.value.fen}`);
-        setStockfishOptions(stockfish);
-        stockfish.postMessage(`go depth ${stockfishOptions.value.depth}`);
-
-        updateHistory();
-    } else if (move.color === 'b' && blackAlgorithm.value.name === allAlgorithms.none.name) {
-        chess.value.move(move.san);
+        stockfishOptions.value.fen = chess.value.fen();
 
         stockfish.postMessage(`position fen ${stockfishOptions.value.fen}`);
         setStockfishOptions(stockfish);
