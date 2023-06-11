@@ -1,14 +1,11 @@
 <script setup lang="ts">
-defineEmits(['toggle-orientation', 'toggle-moves']);
+defineEmits(['toggle-orientation', 'toggle-moves', 'undo-move']);
 </script>
 
 <template>
-    <button class="button" style="margin-right: 2px" @click="$emit('toggle-orientation')">
-        TOGGLE ORIENTATION
-    </button>
-    <button class="button" style="margin-left: 2px" @click="$emit('toggle-moves')">
-        TOGGLE MOVES
-    </button>
+    <button class="button" @click="$emit('toggle-orientation')">TOGGLE ORIENTATION</button>
+    <button class="button" @click="$emit('toggle-moves')">TOGGLE MOVES</button>
+    <button class="button" @click="$emit('undo-move')">UNDO LAST MOVE</button>
 </template>
 
 <style scoped>
@@ -21,6 +18,8 @@ defineEmits(['toggle-orientation', 'toggle-moves']);
     cursor: pointer;
     margin-top: 20px;
     margin-bottom: 20px;
+    margin-left: 1px;
+    margin-right: 1px;
     justify-content: center;
     text-align: center;
 }

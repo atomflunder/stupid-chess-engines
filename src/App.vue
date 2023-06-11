@@ -66,13 +66,16 @@ let stockfishOptions = ref({
     fen: chess.value.fen()
 });
 
+onkeydown = (e: KeyboardEvent) => {
+    if (e.key === 'ArrowLeft') {
+        undoMove();
+    }
+};
+
 function updateEval(event: MessageEvent) {
     if (event.data.includes(`depth ${stockfishOptions.value.depth}`)) {
         const ev = Number(event.data.split(' ')[9]);
 
-        console.log(event.data);
-
-        // TODO: Fix
         if (event.data.includes('score cp')) {
             if (chess.value.turn() === 'w') {
                 if (ev > 0) {
@@ -197,6 +200,19 @@ function parseMove(move: Move) {
 
         updateHistory();
     }
+}
+
+function undoMove() {
+    chess.value.undo();
+    boardAPI.value?.undoLastMove();
+
+    stockfishOptions.value.fen = chess.value.fen();
+
+    stockfish.postMessage(`position fen ${stockfishOptions.value.fen}`);
+    setStockfishOptions(stockfish);
+    stockfish.postMessage(`go depth ${stockfishOptions.value.depth}`);
+
+    updateHistory();
 }
 
 function handleGameOver(chess: Chess) {
@@ -383,6 +399,7 @@ onBeforeMount(() => {
             <BoardButtons
                 @toggle-moves="boardAPI?.toggleMoves()"
                 @toggle-orientation="boardAPI?.toggleOrientation()"
+                @undo-move="undoMove()"
             />
         </div>
     </div>
